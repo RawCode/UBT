@@ -1,0 +1,6 @@
+name: UBT
+main: rc.ubt.Loader
+version: 0
+author: RawCode
+website: https://github.com/RawCode/UBT
+description: Research and development plugin about random hacks
