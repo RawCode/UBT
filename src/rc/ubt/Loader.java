@@ -51,7 +51,7 @@ public class Loader extends JavaPlugin
 			config.set("PathToClasses", "NULL");
 			ischanged = true;
 		}
-		fff
+		
 		if (ischanged)
 			saveConfig();
 		
