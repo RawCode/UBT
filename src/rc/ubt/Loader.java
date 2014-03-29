@@ -18,12 +18,12 @@ import org.bukkit.craftbukkit.v1_7_R1.CraftWorld;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import rc.ubt.auto.AutoSave;
 import rc.ubt.hnde.CustomLogin;
 import rc.ubt.hnde.ForcedPvP;
 import rc.ubt.hnde.ForcedRespawn;
 import rc.ubt.impl.PsExImpl;
 import rc.ubt.impl.UnsafeImpl;
+import rc.ubt.task.AutoSave;
 import rc.ubt.wgen.Generator_DFS;
 
 @SuppressWarnings("all")

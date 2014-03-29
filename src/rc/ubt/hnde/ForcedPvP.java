@@ -56,7 +56,7 @@ public class ForcedPvP implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR,ignoreCancelled = true)
 	public void onPlayerKickEvent(PlayerKickEvent event){
-		MAP.remove(event.getPlayer().getName().toLowerCase());
+		MAP.remove(Player2Key(event.getPlayer()));
 		//dont kill players from kicks
 	}
 
@@ -68,7 +68,7 @@ public class ForcedPvP implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR,ignoreCancelled = true)
 	public void onPlayerQuitEvent(PlayerQuitEvent event) {
-		String Key = event.getPlayer().getName().toLowerCase();
+		String Key = Player2Key(event.getPlayer());
 		ForcedPvP Container = MAP.get(Key);
 		if (Container == null) return;
 
@@ -87,7 +87,7 @@ public class ForcedPvP implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST,ignoreCancelled = true)
 	public void onPlayerJoinEvent(PlayerJoinEvent event) {
-		String Key = event.getPlayer().getName().toLowerCase();
+		String Key = Player2Key(event.getPlayer());
 		ForcedPvP Container = MAP.get(Key);
 		if (Container == null) return;
 
@@ -100,7 +100,7 @@ public class ForcedPvP implements Listener {
 	public void PlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent event)  
 	{
 
-		String Key = event.getPlayer().getName().toLowerCase();
+		String Key = Player2Key(event.getPlayer());
 		ForcedPvP Container = MAP.get(Key);
 		if (Container == null) return;
 

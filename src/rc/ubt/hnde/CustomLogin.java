@@ -21,7 +21,6 @@ public class CustomLogin implements Listener {
 		Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);
 	}
 	
-	
 	static String                      PER   = "UBT.Bypass";
 	static public HashMap<String,Long> MAP   = new HashMap<String,Long>();
 	static long 					   DELAY = 1000 * 20;

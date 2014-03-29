@@ -19,7 +19,10 @@ public class MojangImpl
 	
 	static byte[] requestdataA = "[{\"name\":\"".getBytes();
 	static byte[] requestdataB = "\",\"agent\":\"minecraft\"}]".getBytes();
-	static byte[] name = "RawCode".getBytes();
+	static byte[] name = "RawCodenn".getBytes();
+	
+	//{"profiles":[{"id":"b5a7d8c4ac5b4e54bae59f8fe2a5a382","name":"RawCode"}],"size":1}
+	//{"profiles":[],"size":0}
 	
 	//async netIO with IO pump baked by atomic hashtable
 	

@@ -1,4 +1,4 @@
-package rc.ubt.auto;
+package rc.ubt.task;
 
 import net.minecraft.server.v1_7_R1.WorldServer;
 import org.bukkit.Bukkit;

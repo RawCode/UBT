@@ -1,4 +1,4 @@
-package rc.ubt.auto;
+package rc.ubt.task;
 
 public class ConcurrentSave
 {
