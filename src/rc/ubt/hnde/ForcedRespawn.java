@@ -1,16 +1,14 @@
 package rc.ubt.hnde;
 
-import net.minecraft.server.v1_7_R1.EntityPlayer;
-import net.minecraft.server.v1_7_R1.MinecraftServer;
-import net.minecraft.server.v1_7_R1.PlayerConnection;
+
+import net.minecraft.server.v1_7_R2.MinecraftServer;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_7_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R2.entity.CraftPlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.scheduler.BukkitScheduler;
 
 import rc.ubt.Loader;
 
@@ -21,36 +19,33 @@ public class ForcedRespawn implements Listener, Runnable {
 		Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);
 	}
 	
-	public String target; 
-	public ForcedRespawn(String e)
+	public CraftPlayer target; 
+	public ForcedRespawn(CraftPlayer s)
 	{
-		this.target = e;
+		this.target = s;
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onPlayerDeathEvent (PlayerDeathEvent e){
-		BukkitScheduler scheduler = Bukkit.getScheduler();
-		scheduler.runTask(Loader.INSTANCE, new ForcedRespawn(e.getEntity().getName()));
+		Bukkit.getScheduler().runTask(Loader.INSTANCE, new ForcedRespawn((CraftPlayer) e.getEntity()));
+		e.setDeathMessage(null);
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onPlayerJoinEvent (PlayerJoinEvent e){
-		if (!e.getPlayer().isDead())
-			return;
-		BukkitScheduler scheduler = Bukkit.getScheduler();
-		scheduler.runTask(Loader.INSTANCE, new ForcedRespawn(e.getPlayer().getName()));
+		Bukkit.getScheduler().runTask(Loader.INSTANCE, new ForcedRespawn((CraftPlayer) e.getPlayer()));
+		e.setJoinMessage(null);
 	}
-
+	
 	public void run() {
-		CraftPlayer CP = (CraftPlayer) Bukkit.getPlayer(target);
-		if (CP == null)
-		{
-			return;
-		}
-		EntityPlayer EP = CP.getHandle();
-		if (EP.getHealth() > 0.)
-			return;
-		PlayerConnection PC = EP.playerConnection;
-		PC.player = MinecraftServer.getServer().getPlayerList().moveToWorld(EP, 0, false);
+		
+		if (!MinecraftServer.getServer().getPlayerList().players.contains(target.getHandle()))
+			return;//do not process uncontrolled players
+		
+		if (target.getHandle().getHealth() > 0.0)
+			return;//do not process alive players
+		
+		target.getHandle().playerConnection.player =
+			MinecraftServer.getServer().getPlayerList().moveToWorld(target.getHandle(), 0, false);
 	}
 }

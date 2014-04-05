@@ -21,10 +21,7 @@ import rc.ubt.Loader;
 
 public class ForcedPvP implements Listener {
 	
-	public ForcedPvP()
-	{
-		Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);
-	}
+	public ForcedPvP(){Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);}
 	
 	static String                   PER   = "UBT.Bypass";
 	static long 					DELAY = 1000 * 20;

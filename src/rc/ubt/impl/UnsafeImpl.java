@@ -104,7 +104,7 @@ public class UnsafeImpl
 	//put methods are word and dword
 	
 	
-	static private void putObject(Object Owner, Object Value,String... Names)
+	static public void putObject(Object Owner, Object Value,String... Names)
 	{
 		Field Target = fetchField(Owner.getClass(),Names);
 		if ((Target.getModifiers() & 8) == 0)

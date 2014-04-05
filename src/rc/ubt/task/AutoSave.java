@@ -1,9 +1,9 @@
 package rc.ubt.task;
 
-import net.minecraft.server.v1_7_R1.WorldServer;
+import net.minecraft.server.v1_7_R2.WorldServer;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_7_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_7_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R2.CraftChunk;
+import org.bukkit.craftbukkit.v1_7_R2.CraftWorld;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -17,7 +17,7 @@ public class AutoSave implements Runnable, Listener
 {
 	static String  PER        = "UBT.Bypass";
 	static long    LAST_SAVE  = System.currentTimeMillis();
-	static int 	   FRAME_SIZE = 1000*60*1;
+	static int 	   FRAME_SIZE = 1000*60*15;
 	static boolean PROCESS    = false;
 	static CraftChunk[] TOSAVE= null;
 	static int     STEP       = 0;
@@ -106,11 +106,11 @@ public class AutoSave implements Runnable, Listener
 			if (TOSAVE[STEP].isLoaded())
 			{
 				WSH.chunkProviderServer.saveChunk(TOSAVE[STEP].getHandle());
-				System.out.println("SAVED " + TOSAVE[STEP]);
+				//System.out.println("SAVED " + TOSAVE[STEP]);
 				STEP++;
 				return false;
 			}
-			System.out.println("SKIPPED " + TOSAVE[STEP]);
+			//System.out.println("SKIPPED " + TOSAVE[STEP]);
 			TOSAVE[STEP] = null;
 			STEP++;
 			SKIP++;

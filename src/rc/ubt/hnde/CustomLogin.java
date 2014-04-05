@@ -23,7 +23,7 @@ public class CustomLogin implements Listener {
 	
 	static String                      PER   = "UBT.Bypass";
 	static public HashMap<String,Long> MAP   = new HashMap<String,Long>();
-	static long 					   DELAY = 1000 * 20;
+	static long 					   DELAY = 1000 * 10;
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void CountdownQuit(PlayerQuitEvent event){

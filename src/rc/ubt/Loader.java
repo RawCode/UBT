@@ -4,18 +4,21 @@ import java.io.File;
 import java.net.URLClassLoader;
 import java.util.Map;
 
-import net.minecraft.server.v1_7_R1.WorldServer;
-import net.minecraft.server.v1_7_R1.WorldType;
+import net.minecraft.server.v1_7_R2.WorldServer;
+import net.minecraft.server.v1_7_R2.WorldType;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_7_R1.CraftServer;
-import org.bukkit.craftbukkit.v1_7_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R2.CraftServer;
+import org.bukkit.craftbukkit.v1_7_R2.CraftWorld;
 import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.plugin.PluginLoadOrder;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import rc.ubt.hnde.CustomLogin;
@@ -27,7 +30,7 @@ import rc.ubt.task.AutoSave;
 import rc.ubt.wgen.Generator_DFS;
 
 @SuppressWarnings("all")
-public class Loader extends JavaPlugin
+public class Loader extends JavaPlugin implements Runnable
 {
 	static String VER = Bukkit.getServer().getClass().getName().split("\\.")[3];
 	public static JavaPlugin INSTANCE;
@@ -51,26 +54,37 @@ public class Loader extends JavaPlugin
 			config.set("PathToClasses", "NULL");
 			ischanged = true;
 		}
+		if (!config.contains("isDebugging"))
+		{
+			config.set("isDebugging", false);
+			ischanged = true;
+		}
+		if (!config.contains("isTesting"))
+		{
+			config.set("isTesting", false);
+			ischanged = true;
+		}
 		
 		if (ischanged)
 			saveConfig();
+		
+		if (config.getBoolean("isDebugging"))
+			((org.apache.logging.log4j.core.Logger) LogManager.getLogger()).setLevel(Level.DEBUG);
 		
 		SimpleCommandMap scm = ((CraftServer)Bukkit.getServer()).getCommandMap();
 		Map knownCommands = (Map) UnsafeImpl.getObject(scm, "knownCommands");
 		knownCommands.remove("reload");
 		
 		if (!config.getBoolean("isMainServer")){
-			LogManager.getLogger().info("Forcing world generator");
+			LogManager.getLogger().debug("Forcing world generator");
 			YamlConfiguration YC = (YamlConfiguration) UnsafeImpl.getObject(Bukkit.getServer(), "configuration");
 			ConfigurationSection ss = YC.createSection("worlds");
 			ss = ss.createSection("world");
 			ss.set("generator", "UBT");
-	    	Bukkit.getPluginManager().registerEvents(new Tester(), this);
+			
+			LogManager.getLogger().debug("Forcing plugin loadorder");
+			UnsafeImpl.putObject(this.getDescription(), PluginLoadOrder.STARTUP, "order");
 		}
-		
-		Bukkit.getPluginManager().enablePlugin(this);
-		//anyway i need method to properly handle postworld and preworld
-		//most effective way to leave plugin startup mode and perform stuff on worldinit event, this is best move
 	}
 	
 	static void Load(File Target)
@@ -90,19 +104,32 @@ public class Loader extends JavaPlugin
 		
 		
 	}
-	
-    public void onEnable()
-    {
-    	//this shoud execute on worldinit or after worldinit or on first server tick
+	//ThreadInfo[] threads = ManagementFactory.getThreadMXBean().dumpAllThreads(true, true);
+	//getStackTrace
+	@Override
+	public void run() 
+	{
+    	LogManager.getLogger().debug("Postworld initialization");
+		//POSTWORLD SECTION
     	new PsExImpl();
     	new AutoSave();
     	new CustomLogin();
     	new ForcedPvP();
     	new ForcedRespawn();
+	}
+	
+    public void onEnable()
+    {
+    	//PREWORLD SECTION
+    	LogManager.getLogger().debug("Preworld initialization");
+		if (this.getConfig().getBoolean("isTesting"))
+	    	new Tester();
+		
+		Bukkit.getScheduler().runTask(this, this);
     }
     
     public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
-    	LogManager.getLogger().info("Dome Fuji Survival generator will be used for " + worldName);
+    	LogManager.getLogger().debug("Dome Fuji Survival generator will be used for " + worldName);
         return new Generator_DFS();
     }
 }

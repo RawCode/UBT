@@ -15,8 +15,8 @@ public class Silencio
 	//flags used for punishment tracking
 	//kicking player and banning for short time (not persistent)
 	//also can be stored here
-	static byte INFO = 0x01;
-	static byte DEEP = 0x02;
+	static byte TYPE_INFO  = 0x01; //
+	static byte TYPE_ABYSS = 0x02; //fat mute reference
 	static byte MOD1 = 0x04;
 	static byte MOD2 = 0x08;
 	

@@ -2,8 +2,6 @@ package rc.ubt.wgen;
 
 import java.util.Random;
 
-import net.minecraft.server.v1_7_R1.MathHelper;
-
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -24,6 +22,7 @@ public class Populator_DFS extends BlockPopulator
         return par0 >= 0 ? par0 : -par0;
     }
 
+	@SuppressWarnings("deprecation")
 	public void SpawnShrub(World w, int X, int Z){
 		if (w.getBiome(X, Z) != Biome.JUNGLE)
 			return;
@@ -49,53 +48,6 @@ public class Populator_DFS extends BlockPopulator
 			}
 		}
 		w.getBlockAt(X, 64, Z).setTypeIdAndData(17,(byte) 3,true);
-	}
-	
-	public void SpawnObelisk(World w, int X, int Z) {
-		
-		if (w.getBiome(X, Z) != Biome.ICE_PLAINS_SPIKES)
-			return;
-		
-		int Height 	= RND.nextInt(28) + 10;
-		int Size 	= RND.nextInt(2 ) + 3 ;
-		int Base    = 60;
-		
-		//select 3-6-9 locations inside given boundary and
-		//cast ores into given locations
-		//replace obsidian with diamond
-		//air with glowstone
-		
-		//orecast range:
-		//y from base to base+height
-		//X-size to X+size
-		//Z-size to Z+size
-		//basically simple
-		
-		for (int ly = Base; ly <= Base + Height ; ly++)
-		{
-			for (int lx = X - Size; lx <= X + Size ; lx++)
-			{
-				for (int lz = Z - Size; lz <= Z + Size ; lz++)
-				{
-					int ex = lx - X;
-					int ez = lz - Z;
-					if (ex * ex + ez * ez >= Size * Size + 1)
-						continue;
-					if (ex * ex + ez * ez <= 1)
-						continue;
-					
-					w.getBlockAt(lx, ly, lz).setType(Material.OBSIDIAN);
-				}
-			}
-		}
-		
-		for (int i = Size-1 ; i > 0 ; i--)
-		{
-			int bx = X - Size + RND.nextInt(Size*2);
-			int by = Base + RND.nextInt(Height);
-			int bz = Z - Size + RND.nextInt(Size*2);
-			SpawnOre(w,bx,by,bz,Material.OBSIDIAN,Material.DIAMOND_ORE);
-		}
 	}
 	
 	public static int fastfloor(double x) 
@@ -140,11 +92,6 @@ public class Populator_DFS extends BlockPopulator
     	double R = SimplexImpl.noise(X*SCALE, Z*SCALE)+1.0d;
     	X *= 16;
     	Z *= 16;
-
-    	if (RND.nextInt(64) == 0)
-    	{
-    		SpawnObelisk(w,X + RND.nextInt(16),Z + RND.nextInt(16));
-    	}
     	
     	for (int p = 16 ; p > 0 ; p--)
     	{

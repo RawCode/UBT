@@ -123,9 +123,9 @@ public class Generator_DFS extends ChunkGenerator {
 			if (biomes.getBiome(ordinates % 16, ordinates / 16) == Biome.JUNGLE)
 				output[3][i] = (i / 256 == 15) ? SURFACE_INSIDE_TOP : SURFACE_INSIDE ;
 			if (biomes.getBiome(ordinates % 16, ordinates / 16) == Biome.BIRCH_FOREST)
-				output[3][i] = 10;
+				output[3][i] = 8;
 			if (biomes.getBiome(ordinates % 16, ordinates / 16) == Biome.TAIGA)
-				output[3][i] = 49;
+				output[3][i] = 10;
 			
 		}
 
