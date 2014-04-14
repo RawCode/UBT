@@ -47,7 +47,6 @@ public class ForcedPvP implements Listener {
 	
 	static private String Player2Key(Player p)
 	{
-		if (p == null) return "null";
 		return p.getName().toLowerCase();
 	}
 

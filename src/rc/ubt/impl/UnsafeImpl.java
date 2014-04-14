@@ -1,7 +1,13 @@
 package rc.ubt.impl;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,7 +42,7 @@ public class UnsafeImpl
 	 * Java objects is API over internal OOPs
 	 * 
 	 * !!!Platform\version dependant!!!
-	 * Tested platform Windows 7 - x64 - CompressedOOPS
+	 * Tested platform Windows 7 - x64 - CompressedOOPS (less then 32gb memory)
 	 */
 	
 	static Unsafe unsafe;
@@ -54,29 +60,28 @@ public class UnsafeImpl
 		catch(Throwable t)
 		{
 			t.printStackTrace();
-			System.exit(1);
+			System.exit(42);
 		}
 	}
 	
-	static private int forObject_OOP(Object O){
+	static public long Object2ID(Object O){
 		anchor = O;
-		return unsafe.getInt(UnsafeImpl.class, offset);
+		return unsafe.getInt(UnsafeImpl.class, offset) & 0xFFFFFFFFL;
 	}
 	
-	static private Object forOOP_Object(int ID){
+	static public Object ID2Object(int ID){
 		unsafe.putInt(UnsafeImpl.class, offset, ID);
 		return anchor;
 	}
 	
-	static private long I2L(int Value)
-	{
-		return Value & 0xFFFFFFFFL;
+	static public void Object2Trace(Object O){
+		Object2Trace(O,64);
 	}
 	
-	static public void forObject_Dump(Object O){
-		System.out.println("Trace of " + Long.toHexString(I2L(forObject_OOP(O))));
-        for (int i = 0; i < 72; i++){
-            	System.out.print(String.format("%02X ", unsafe.getByte(O,(long)i)));
+	static public void Object2Trace(Object O,int L){
+		System.out.println("Trace of " + Long.toHexString(Object2ID(O)));
+        for (int i = 0; i < L; i++){
+            System.out.print(String.format("%02X ", unsafe.getByte(O,(long)i)));
             	if (i % 4 == 3)
             		System.out.println();
         }
@@ -103,6 +108,16 @@ public class UnsafeImpl
 	
 	//put methods are word and dword
 	
+	
+	static public void putObjectStatic(Class Owner, Object Value,String... Names)
+	{
+		Field Target = fetchField(Owner,Names);
+		if ((Target.getModifiers() & 8) == 0)
+		{
+			return;
+		}
+		unsafe.putObject(Owner,unsafe.staticFieldOffset(Target),Value);
+	}
 	
 	static public void putObject(Object Owner, Object Value,String... Names)
 	{
@@ -157,21 +172,38 @@ public class UnsafeImpl
 	//string have 6 words size
 	//final File f = new File(MyClass.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 	
+	//1091        FileInputStream fdIn = new FileInputStream(FileDescriptor.in);
+	//1092        FileOutputStream fdOut = new FileOutputStream(FileDescriptor.out);
+	//1093        FileOutputStream fdErr = new FileOutputStream(FileDescriptor.err);
 	
-	static int[] TESTARRAY = {1,2,3,4,5};
-	static int STEP = 0;
-	static int SKIP = 0;
+	
 	
 	static public void main(String[] args) throws Throwable {
 		
-		for(;STEP < TESTARRAY.length;)
+		System.out.println("THIS IS TESTSTRING TO CONSOLE");
+		
+		FileOutputStream fis = new FileOutputStream(FileDescriptor.out);
+		
+		System.out.println("BEFORE TEST");
+		try
 		{
-			System.out.println("INTERNAL SAVED " + TESTARRAY[STEP]);
-			STEP++;
+			fis.write('a');
+			fis.write(new byte[999]);
+			System.out.println("TEST");
+		} catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("ERR");
 		}
-		System.out.println("ENDED");
-		System.out.println(STEP);
-		System.out.println(SKIP);
+		System.out.println("OUT");
+		
+		
+
+		
+		System.out.println("THIS IS TESTSTRING TO CONSOLE");
+		
+		
 		
 		/*
 		int[] t = {1,2,3,4};

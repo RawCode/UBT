@@ -2,7 +2,9 @@ package rc.ubt.hnde;
 
 
 import net.minecraft.server.v1_7_R2.MinecraftServer;
+
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.v1_7_R2.entity.CraftPlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -14,10 +16,7 @@ import rc.ubt.Loader;
 
 public class ForcedRespawn implements Listener, Runnable {
 	
-	public ForcedRespawn()
-	{
-		Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);
-	}
+	public ForcedRespawn(){Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);}
 	
 	public CraftPlayer target; 
 	public ForcedRespawn(CraftPlayer s)
@@ -45,7 +44,8 @@ public class ForcedRespawn implements Listener, Runnable {
 		if (target.getHandle().getHealth() > 0.0)
 			return;//do not process alive players
 		
-		target.getHandle().playerConnection.player =
-			MinecraftServer.getServer().getPlayerList().moveToWorld(target.getHandle(), 0, false);
+		MinecraftServer.getServer().getPlayerList().moveToWorld(target.getHandle(), 0, false);
+		target.getHandle().addScore(1);
+		target.sendMessage(ChatColor.RED + "Your maximum health decreased by " + target.getHandle().getScore());
 	}
 }

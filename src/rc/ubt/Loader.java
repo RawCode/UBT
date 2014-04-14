@@ -1,6 +1,9 @@
 package rc.ubt;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URLClassLoader;
 import java.util.Map;
 
@@ -31,16 +34,47 @@ import rc.ubt.wgen.Generator_DFS;
 
 @SuppressWarnings("all")
 public class Loader extends JavaPlugin implements Runnable
-{
+{	
 	static String VER = Bukkit.getServer().getClass().getName().split("\\.")[3];
 	public static JavaPlugin INSTANCE;
 	{
 		INSTANCE = this;
 	}
 	
+	
+	//public void dynamicKey()
+	
+	public void initSetting()
+	{
+		FileConfiguration c = this.getConfig();
+		//c.
+	}
+	
 	public void onLoad()
 	{
+		
 		FileConfiguration config = this.getConfig();
+		System.out.println(config.getInt("TEST"));
+		config.addDefault("TEST", 1488);
+		System.out.println(config.getInt("TEST"));
+		
+		config.set("TEST",666);
+		System.out.println(config.getInt("TEST"));
+		
+		config.addDefault("TEST", 1488);
+		System.out.println(config.getInt("TEST"));
+		
+		saveConfig();
+		
+		//[00:06:22] [Server thread/INFO]: [UBT] Loading UBT v0
+		//[00:06:22] [Server thread/INFO]: 0
+		//[00:06:22] [Server thread/INFO]: 1488
+		//[00:06:22] [Server thread/INFO]: 666
+		//[00:06:22] [Server thread/INFO]: 666
+		
+		
+		if (true) return;
+		
 		boolean ischanged = false;
 		
 		if (!config.contains("isMainServer"))
@@ -120,10 +154,14 @@ public class Loader extends JavaPlugin implements Runnable
 	
     public void onEnable()
     {
+    	new RandomClassA();
+    	new RandomClassB();
+    	new Tester();
+    	
     	//PREWORLD SECTION
     	LogManager.getLogger().debug("Preworld initialization");
-		if (this.getConfig().getBoolean("isTesting"))
-	    	new Tester();
+		//if (this.getConfig().getBoolean("isTesting"))
+	    	//new Tester();
 		
 		Bukkit.getScheduler().runTask(this, this);
     }

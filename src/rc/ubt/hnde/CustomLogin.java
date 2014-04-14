@@ -15,11 +15,7 @@ import rc.ubt.Loader;
 import rc.ubt.impl.PsExImpl;
 
 public class CustomLogin implements Listener {
-	
-	public CustomLogin()
-	{
-		Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);
-	}
+	public CustomLogin(){Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);}
 	
 	static String                      PER   = "UBT.Bypass";
 	static public HashMap<String,Long> MAP   = new HashMap<String,Long>();

@@ -20,7 +20,7 @@ public class TrueObjectSizeExplained
 		
 		UnsafeImpl.putInt(t,0xFF,"testbool1");
 		
-		UnsafeImpl.forObject_Dump(t);
+		UnsafeImpl.Object2Trace(t);
 		System.out.println(t.testbool1);
 		
 		//UnsafeImpl.putInt(t,0xFF,"testbool1");

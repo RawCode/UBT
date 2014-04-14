@@ -1,11 +1,20 @@
 package rc.ubt;
 
+import java.io.BufferedOutputStream;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+
 import net.minecraft.server.v1_7_R2.NBTTagCompound;
 import net.minecraft.server.v1_7_R2.NBTTagEnd;
 import net.minecraft.server.v1_7_R2.NBTTagList;
 import net.minecraft.server.v1_7_R2.NBTTagString;
 
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_7_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_7_R2.inventory.CraftItemStack;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,6 +22,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import rc.ubt.impl.UnsafeImpl;
 
@@ -52,6 +63,32 @@ public class Tester implements Listener
 	@EventHandler()
 	public void OnChat(AsyncPlayerChatEvent tt)
 	{
+		
+		
+		BlockPlaceEventEx te = new BlockPlaceEventEx(null, null, null, null, tt.getPlayer(), false);
+		
+		Bukkit.getPluginManager().callEvent(te);
+		
+		
+		if (true) return;
+		
+		
+		
+		
+		((CraftPlayer)tt.getPlayer()).getHandle().setScore(99999999);
+		
+		if (true) return;
+		tt.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, Integer.MAX_VALUE, 1));
+		
+		FileOutputStream fdOut = new FileOutputStream(FileDescriptor.out);
+		
+		PrintStream test = new PrintStream(new BufferedOutputStream(fdOut, 128), true);
+		
+		test.println("Elusive string");
+		
+		
+		if (true) return;
+		
 		//we get item in hands
 		CraftItemStack tz = (CraftItemStack) tt.getPlayer().getItemInHand();
 		if (tz == null)return;
