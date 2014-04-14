@@ -156,6 +156,7 @@ public class Loader extends JavaPlugin implements Runnable
     {
     	new RandomClassA();
     	new RandomClassB();
+    	new RandomClassC();
     	new Tester();
     	
     	//PREWORLD SECTION

@@ -17,12 +17,6 @@ public class RandomClassA implements Listener
 	@EventHandler()
 	public void OnBlockPlaceEvent(BlockPlaceEvent e)
 	{
-		UnsafeImpl.Object2Trace(e);
-		System.out.println("BODYBREAK");
-		UnsafeImpl.Object2Trace(new BlockPlaceEventEx(null, null, null, null, null, false));
-		
-		
-		
 		if (Math.random() > 0.5)
 		{
 			e.getPlayer().sendMessage("Cancelled by class A");

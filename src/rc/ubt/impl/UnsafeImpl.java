@@ -45,7 +45,7 @@ public class UnsafeImpl
 	 * Tested platform Windows 7 - x64 - CompressedOOPS (less then 32gb memory)
 	 */
 	
-	static Unsafe unsafe;
+	public static Unsafe unsafe;
 	static Object anchor;
 	static long   offset;
 	static
