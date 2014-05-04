@@ -69,8 +69,8 @@ public class UnsafeImpl
 		return unsafe.getInt(UnsafeImpl.class, offset) & 0xFFFFFFFFL;
 	}
 	
-	static public Object ID2Object(int ID){
-		unsafe.putInt(UnsafeImpl.class, offset, ID);
+	static public Object ID2Object(long ID){
+		unsafe.putLong(UnsafeImpl.class, offset, ID);
 		return anchor;
 	}
 	
@@ -178,8 +178,90 @@ public class UnsafeImpl
 	
 	
 	
-	static public void main(String[] args) throws Throwable {
+	
+	static private Thread mainref = null;
+
+	static public void RandomLockingMethodAPI(final boolean Forced) throws Throwable
+	{
 		
+		if (Thread.currentThread() == mainref && Forced)
+			new Thread()
+		{
+			public void run()
+			{
+				try
+				{
+					RandomLockingMethodAPI(Forced);
+				} catch (Throwable e){}
+			}
+		}.start();
+		else
+			RandomLockingMethodImpl();
+	}
+	
+	static public void RandomLockingMethodImpl() throws Throwable
+	{
+		Thread.sleep(1000);
+		System.out.println("Message second later from " + Thread.currentThread());
+	}
+	
+	static public void main(String[] args) throws Throwable {
+
+		//working offheap object sample
+		
+		//must check rules of memory copy, since for some reason it does not copy
+		//from object to object and this is not good
+		
+		TEST testA = new TEST();
+		
+		testA.A = 666;
+		testA.B = 666;
+		testA.C = new Integer(888);
+		
+		//int A = unsafe.getInt(test, 4l);
+		//int B = unsafe.getInt(test, 8l);
+		//int C = unsafe.getInt(test, 12l);
+		
+		//System.out.println(A);
+		//System.out.println(B);
+		//System.out.println(C);
+		
+		long TRY = unsafe.allocateMemory(32);
+		
+		Object FabA = ID2Object(TRY/8);
+		//Object FabB = ID2Object((TRY/8)+1);
+		
+		//System.out.println(TRY);
+		
+		unsafe.copyMemory(testA, 0, null, TRY, 32);
+		//unsafe.copyMemory(testA, 8, null, TRY+16, 4);
+		
+		//((TEST)FabA).C = null;
+		
+		System.out.println(((TEST)FabA).C);
+		
+		
+		Object2Trace(FabA);
+		
+		Object2Trace(testA);
+		((TEST)FabA).D = null;
+		
+		//Object2Trace(FabB);
+		
+		//System.out.println(unsafe.getInt(TRY+12));
+		
+		//System.out.println(o);
+		
+		//System.out.println(FabA.getClass());
+		//System.out.println(FabB.getClass());
+		
+		
+		//Object2Trace(o);
+		
+		//System.out.println(unsafe.getInt(TRY+19));
+	
+		
+		/*
 		System.out.println("THIS IS TESTSTRING TO CONSOLE");
 		
 		FileOutputStream fis = new FileOutputStream(FileDescriptor.out);

@@ -1,11 +1,10 @@
 package rc.ubt.hnde;
 
 
-import net.minecraft.server.v1_7_R2.MinecraftServer;
-
+import net.minecraft.server.v1_7_R3.MinecraftServer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.craftbukkit.v1_7_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

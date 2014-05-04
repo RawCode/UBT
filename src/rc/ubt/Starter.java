@@ -4,6 +4,7 @@ public class Starter
 {
 	public static void main(String... args) throws Throwable
 	{
+		/** PLACEHOLDER CLASS */
 		//Process proc = Runtime.getRuntime().exec("java -jar d://1.jar");
 		//Runtime.getRuntime().exit(0);
 		//actually everything very simple, we need to execute our jar, then our jar will execute server

@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.net.URLClassLoader;
 import java.util.Map;
 
-import net.minecraft.server.v1_7_R2.WorldServer;
-import net.minecraft.server.v1_7_R2.WorldType;
+import net.minecraft.server.v1_7_R3.WorldServer;
+import net.minecraft.server.v1_7_R3.WorldType;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -18,8 +18,8 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_7_R2.CraftServer;
-import org.bukkit.craftbukkit.v1_7_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R3.CraftServer;
+import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -34,82 +34,49 @@ import rc.ubt.wgen.Generator_DFS;
 
 @SuppressWarnings("all")
 public class Loader extends JavaPlugin implements Runnable
-{	
-	static String VER = Bukkit.getServer().getClass().getName().split("\\.")[3];
+{
+	/** It will be nice to see list of modules with desired loading order
+	 * name.class,CINIT,INIT,LOAD,PREWORLD,POSTWORLD,FIRSTTICK,DELAYED.AFTER PLUGIN X
+	 */
 	public static JavaPlugin INSTANCE;
-	{
+	/** <init> section */{
 		INSTANCE = this;
 	}
 	
+	public static boolean CONVERSION = false;
+	public static boolean DEBUGGING  = false;
+	public static boolean TESTING    = false;
 	
-	//public void dynamicKey()
-	
-	public void initSetting()
+	public boolean ConfigBoolean(String Key, boolean Default)
 	{
-		FileConfiguration c = this.getConfig();
-		//c.
+		if (this.getConfig().contains(Key))
+			return this.getConfig().getBoolean(Key);
+		this.getConfig().set(Key, Default);
+		return Default;
 	}
 	
 	public void onLoad()
 	{
-		
-		FileConfiguration config = this.getConfig();
-		System.out.println(config.getInt("TEST"));
-		config.addDefault("TEST", 1488);
-		System.out.println(config.getInt("TEST"));
-		
-		config.set("TEST",666);
-		System.out.println(config.getInt("TEST"));
-		
-		config.addDefault("TEST", 1488);
-		System.out.println(config.getInt("TEST"));
+		CONVERSION = ConfigBoolean("isConversion",false);
+		DEBUGGING  = ConfigBoolean("isDebugging" ,false);
+		TESTING    = ConfigBoolean("isTesting"   ,false);
 		
 		saveConfig();
 		
-		//[00:06:22] [Server thread/INFO]: [UBT] Loading UBT v0
-		//[00:06:22] [Server thread/INFO]: 0
-		//[00:06:22] [Server thread/INFO]: 1488
-		//[00:06:22] [Server thread/INFO]: 666
-		//[00:06:22] [Server thread/INFO]: 666
-		
-		
-		if (true) return;
-		
-		boolean ischanged = false;
-		
-		if (!config.contains("isMainServer"))
-		{
-			config.set("isMainServer", true);
-			ischanged = true;
-		}
-		
-		if (!config.contains("PathToClasses"))
-		{
-			config.set("PathToClasses", "NULL");
-			ischanged = true;
-		}
-		if (!config.contains("isDebugging"))
-		{
-			config.set("isDebugging", false);
-			ischanged = true;
-		}
-		if (!config.contains("isTesting"))
-		{
-			config.set("isTesting", false);
-			ischanged = true;
-		}
-		
-		if (ischanged)
-			saveConfig();
-		
-		if (config.getBoolean("isDebugging"))
+		if (DEBUGGING)
 			((org.apache.logging.log4j.core.Logger) LogManager.getLogger()).setLevel(Level.DEBUG);
-		
+
+		/** Unwanted <vanilla> commands */
 		SimpleCommandMap scm = ((CraftServer)Bukkit.getServer()).getCommandMap();
 		Map knownCommands = (Map) UnsafeImpl.getObject(scm, "knownCommands");
 		knownCommands.remove("reload");
+		knownCommands.remove("help");
+		knownCommands.remove("list");
+		knownCommands.remove("seed");
+		knownCommands.remove("me");
 		
-		if (!config.getBoolean("isMainServer")){
+		/** If server running in conversion mode - replace world generator */
+		if (CONVERSION){
 			LogManager.getLogger().debug("Forcing world generator");
 			YamlConfiguration YC = (YamlConfiguration) UnsafeImpl.getObject(Bukkit.getServer(), "configuration");
 			ConfigurationSection ss = YC.createSection("worlds");
@@ -138,32 +105,30 @@ public class Loader extends JavaPlugin implements Runnable
 		
 		
 	}
-	//ThreadInfo[] threads = ManagementFactory.getThreadMXBean().dumpAllThreads(true, true);
-	//getStackTrace
-	@Override
+
 	public void run() 
 	{
-    	LogManager.getLogger().debug("Postworld initialization");
-		//POSTWORLD SECTION
+    	LogManager.getLogger().debug("TICKZERO");
+    	
     	new PsExImpl();
     	new AutoSave();
     	new CustomLogin();
     	new ForcedPvP();
     	new ForcedRespawn();
+
+    	/**  TESTING section begin*/
+    	if (!TESTING) return;
+    	
+    	new Tester();
 	}
 	
     public void onEnable()
     {
-    	new RandomClassA();
-    	new RandomClassB();
-    	new RandomClassC();
-    	new Tester();
+    	if (CONVERSION)
+    		LogManager.getLogger().debug("STARTUP");
+    	else
+    		LogManager.getLogger().debug("POSTWORLD");
     	
-    	//PREWORLD SECTION
-    	LogManager.getLogger().debug("Preworld initialization");
-		//if (this.getConfig().getBoolean("isTesting"))
-	    	//new Tester();
-		
 		Bukkit.getScheduler().runTask(this, this);
     }
     

@@ -8,17 +8,21 @@ import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import net.minecraft.server.v1_7_R2.NBTTagCompound;
-import net.minecraft.server.v1_7_R2.NBTTagEnd;
-import net.minecraft.server.v1_7_R2.NBTTagList;
-import net.minecraft.server.v1_7_R2.NBTTagString;
+import net.minecraft.server.v1_7_R3.NBTTagCompound;
+import net.minecraft.server.v1_7_R3.NBTTagEnd;
+import net.minecraft.server.v1_7_R3.NBTTagList;
+import net.minecraft.server.v1_7_R3.NBTTagString;
 
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_7_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_7_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_7_R3.inventory.CraftItemStack;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -29,16 +33,16 @@ import rc.ubt.impl.UnsafeImpl;
 
 public class Tester implements Listener
 {
-	public Tester()
-	{
-		Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);
-	}
-	//this is test class, loader class will be static and everything esle will be modular
+	public Tester(){Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);}
+	/** After loader implementation, other classes will load from arbitrary locations
+	 * but this class will stay embedded
+	 */
 	
 	//when loader class code finished, it wont change on updates, i will dump classfiles (or ever plain source texts)
 	//into defined folder and system will load given classes
 	//Tester class unlike all other classes can be defined on it's own
 	//in my case i will load directly from workspace
+	
 	@EventHandler()
 	public void OnChunkLoadEvent(ChunkLoadEvent e)
 	{
@@ -61,21 +65,17 @@ public class Tester implements Listener
 	}
 	
 	@EventHandler()
+	public void OnPlayerExpChangeEvent(PlayerExpChangeEvent e)
+	{
+		e.setAmount(0);
+		System.out.println("XP EVENT");
+	}
+	
+	@EventHandler()
 	public void OnChat(AsyncPlayerChatEvent tt)
 	{
 		
-		
-		BlockPlaceEventEx te = new BlockPlaceEventEx(null, null, null, null, tt.getPlayer(), false);
-		
-		Bukkit.getPluginManager().callEvent(te);
-		
-		
-		if (true) return;
-		
-		
-		
-		
-		((CraftPlayer)tt.getPlayer()).getHandle().setScore(99999999);
+		((CraftPlayer)tt.getPlayer()).getHandle().setScore(666);
 		
 		if (true) return;
 		tt.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, Integer.MAX_VALUE, 1));
@@ -93,7 +93,7 @@ public class Tester implements Listener
 		CraftItemStack tz = (CraftItemStack) tt.getPlayer().getItemInHand();
 		if (tz == null)return;
 		//get internal handle of item
-		net.minecraft.server.v1_7_R2.ItemStack handle = (net.minecraft.server.v1_7_R2.ItemStack) UnsafeImpl.getObject(tz, "handle");
+		net.minecraft.server.v1_7_R3.ItemStack handle = (net.minecraft.server.v1_7_R3.ItemStack) UnsafeImpl.getObject(tz, "handle");
 		//forceset nbt tag of item to proper type
 		handle.setTag(new NBTTagCompound());
 		//setting random key wont work, client process data in predefined way

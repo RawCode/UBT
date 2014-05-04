@@ -12,16 +12,16 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public class Silencio
 {
+	public Silencio(){};
+	
 	//flags used for punishment tracking
 	//kicking player and banning for short time (not persistent)
 	//also can be stored here
-	static byte TYPE_INFO  = 0x01; //
-	static byte TYPE_ABYSS = 0x02; //fat mute reference
-	static byte MOD1 = 0x04;
-	static byte MOD2 = 0x08;
 	
-	
-	public Silencio(){};
+	static byte TYPE_INFO = 0x01; //Non punishment information
+	static byte TYPE_GEN  = 0x02; //Generic punishment
+	static byte TYPE_HEL  = 0x04; //Silent punishment
+	static byte TYPE_PERM = 0x08; //Persistent punishment
 	
 	String Source;
 	long   Stamp;
@@ -29,7 +29,7 @@ public class Silencio
 	byte   Flags;
 	
 	static Map<String,Silencio> MAP = new HashMap<String,Silencio>();
-	public Silencio(Player p, String Source,long Stamp,String Reason,byte Flags)
+	public Silencio(Player p, String Source, long Stamp, String Reason, byte Flags)
 	{
 		this.Source = Source;
 		this.Stamp  = Stamp;
@@ -43,6 +43,8 @@ public class Silencio
 		if (p == null) return "null";
 		return p.getName().toLowerCase();
 	}
+	
+	
 	
 	
 	@EventHandler(priority = EventPriority.LOWEST,ignoreCancelled = true)

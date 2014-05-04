@@ -1,9 +1,9 @@
 package rc.ubt.task;
 
-import net.minecraft.server.v1_7_R2.WorldServer;
+import net.minecraft.server.v1_7_R3.WorldServer;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_7_R2.CraftChunk;
-import org.bukkit.craftbukkit.v1_7_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R3.CraftChunk;
+import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
