@@ -24,6 +24,7 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import rc.ubt.cmde.Silencio;
 import rc.ubt.hnde.CustomLogin;
 import rc.ubt.hnde.ForcedPvP;
 import rc.ubt.hnde.ForcedRespawn;
@@ -114,6 +115,7 @@ public class Loader extends JavaPlugin implements Runnable
     	new CustomLogin();
     	new ForcedPvP();
     	new ForcedRespawn();
+    	new Silencio();
 
     	/**  TESTING section begin*/
     	if (!TESTING) return;

@@ -10,14 +10,16 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
+import rc.ubt.Loader;
 import rc.ubt.impl.PsExImpl;
 
-public class Silencio
+public class Silencio implements Listener
 {
-	public Silencio(){};
+	public Silencio(){Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);}
 	
 	static public int[] Key2Value = new int[256];
 	/** <cinit> section */ static
@@ -70,11 +72,33 @@ public class Silencio
 	
 	public String toString()
 	{
-		String B = " : ";
-		if ((Flags & TYPE_HEL) == 0)
-		{
-			return "H#" + Target + " by " + Source + " Expire in " + 
-		return "";
+		if ((Flags & TYPE_HEL) != 0)
+			return "H#" + Target + " by " + Source + " expire in " + ReverseDelay(Stamp) + " cause " + Reason;
+		return "G#" + Target + " by " + Source + " expire in " + ReverseDelay(Stamp) + " cause " + Reason;
+	}
+		
+	public static String ReverseDelay(long Input)
+	{
+		long now = System.currentTimeMillis();
+		long tmp = ( Input - now ) / 1000;
+		
+		if (tmp < 1)
+			return "expired";
+		
+		long d = tmp / 86400;
+		if (d > 0)
+			tmp-= d * 86400;
+		
+		long h = tmp / 3600;
+		if (h > 0)
+			tmp-= h * 3600;
+		
+		long m = tmp / 60;
+		
+		if (m == 0)
+			return "soon";
+		
+		return m+"m"+(h>0 ? h+"h" : "")+(d>0 ? d+"d" : "");
 	}
 	
 	public static long ProcessDelay(String Input)
@@ -83,7 +107,7 @@ public class Silencio
 		
 		int buffer   = 0;
 		int brate    = 1;
-		int multiply = 0;
+		int multiply = 1;
 		int result   = 0;
 		int temp     = 0;
 		int step     = RawData.length-1;
@@ -97,10 +121,7 @@ public class Silencio
 			
 			if (temp > 10)
 			{
-				if (multiply != 0)
-				{
-					result+= buffer * multiply;
-				}
+				result+= buffer * multiply;
 				multiply = temp;
 				buffer = 0;
 				brate = 1;
@@ -164,34 +185,39 @@ public class Silencio
 
 		if (Order.equals("mute") || Order.equals("fmute"))
 		{
-			hellish = Order.equals("fmute");
 			if (!PsExImpl.has(event.getPlayer(), PER)) return;
+			hellish = Order.equals("fmute");
 			if (Data.length < 3)
 			{
-				event.getPlayer().sendMessage(ChatColor.RED + "необходимо указывать ник цели, срок мута и комментарий");
+				event.getPlayer().sendMessage(ChatColor.RED + "Необходимо указывать ник цели, срок мута и комментарий");
+				event.setCancelled(true);
 				return;
 			}
 			
 			long Delay = ProcessDelay(Data[2]);
 			if (Delay < 0)
 			{
-				event.getPlayer().sendMessage(ChatColor.RED + "срок указывается числом, допустимы указатели m, h, d");
+				event.getPlayer().sendMessage(ChatColor.RED + "срок указывается числом, допустимы степени m, h, d");
 				return;
 			}
 			String Cause = event.getMessage().substring(event.getMessage().indexOf(Data[2]));
 			
 			if (hellish)
-				Bukkit.broadcastMessage(event.getPlayer().getName() + ChatColor.RED + " умолчал " + Data[1] + " на " + Delay + " секунд.");
+			{
+				event.getPlayer().sendMessage(ChatColor.YELLOW + Data[1] + " толсто заткнут на " + Delay + " секунд.");
+				event.getPlayer().sendMessage(ChatColor.RED + "Используйте с умом цель не знает, что она в муте");
+			}
 			else
 			{
-				event.getPlayer().sendMessage(ChatColor.RED + Data[1] + " толсто заткнут на " + Delay + " секунд.");
-				event.getPlayer().sendMessage(ChatColor.RED + "используйте с умом цель не знает, что она в муте");
+				Bukkit.broadcastMessage(event.getPlayer().getName() + ChatColor.RED + " умолчал " + Data[1] + " на " + Delay + " секунд.");
 			}
 			
 			Delay*= 1000;
+			System.out.println(Delay);
 			Delay+= System.currentTimeMillis();
+			System.out.println(Delay);
 			
-			new Silencio(Data[1],event.getPlayer().getName(),Delay,Cause,hellish ? TYPE_GEN : TYPE_HEL);
+			new Silencio(Data[1],event.getPlayer().getName(),Delay,Cause,hellish ? TYPE_HEL : TYPE_GEN);
 			
 			event.setCancelled(true);
 			return;
@@ -203,25 +229,32 @@ public class Silencio
 		
 		String Name = event.getPlayer().getName().toLowerCase();
 		Silencio s = MAP.get(Name);
-		
+
+		//there is no such player in map
 		if (s == null) return;
 		
-		if (w.Expiration < System.currentTimeMillis())
+		System.out.println(s.Stamp);
+		System.out.println(System.currentTimeMillis());
+		
+		if (s.Stamp < System.currentTimeMillis())
 		{
-			Registry.remove(Name);
-			Bukkit.getPlayer(w.Admin).sendMessage(ChatColor.RED + "��� ������ " + Name + " ����");
+			MAP.remove(Name);
+			Player source = Bukkit.getPlayer(s.Source);
+			if (source != null)
+				source.sendMessage(ChatColor.RED + "Наказание игрока "+ ChatColor.YELLOW + Name + " истекло!");
 			return;
 		}
 		
-		if (w.Options == 1)
+		if ((s.Flags & TYPE_HEL) != 0)
 		{
+			System.out.println("Hellish ban triggered");
 			event.getRecipients().clear();
 			event.getRecipients().add(event.getPlayer());
 			return;
 		}
 
-		event.getPlayer().sendMessage(ChatColor.RED + "��� ��������� ������������ ��� ��������������� " 
-		+ w.Admin + " �� ������� " + w.Reason + " �������� " + (w.Expiration - System.currentTimeMillis()) / 1000 + " ������");
+		event.getPlayer().sendMessage(ChatColor.RED + "Чат запрещен администратором " 
+		+ s.Source + " причина " + s.Reason + " осталось " + ReverseDelay(s.Stamp));
 		event.setCancelled(true); 
 	}
 }

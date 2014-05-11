@@ -231,7 +231,7 @@ public class UnsafeImpl
 		
 		int buffer   = 0;
 		int brate    = 1;
-		int multiply = 0;
+		int multiply = 1;
 		int result   = 0;
 		int temp     = 0;
 		int step     = RawData.length-1;
@@ -245,10 +245,7 @@ public class UnsafeImpl
 			
 			if (temp > 10)
 			{
-				if (multiply != 0)
-				{
-					result+= buffer * multiply;
-				}
+				result+= buffer * multiply;
 				multiply = temp;
 				buffer = 0;
 				brate = 1;
@@ -269,9 +266,30 @@ public class UnsafeImpl
 		}
 	}
 	
+	public static String ReverseDelay(long Input)
+	{
+		long now = System.currentTimeMillis();
+		long tmp = ( Input - now ) / 1000;
+		
+		if (tmp < 1)
+			return "expired";
+		
+		long d = tmp / 86400;
+		if (d > 0)
+			tmp-= d * 86400;
+		
+		long h = tmp / 3600;
+		if (h > 0)
+			tmp-= h * 3600;
+		
+		long m = tmp / 60;
+		
+		return m+"m"+(h>0 ? h+"h" : "")+(d>0 ? d+"d" : "");
+	}
+	
 	static public void main(String[] args) throws Throwable {
 		Initialize();
-		System.out.println(ProcessDelay("1m1h1d"));
+		System.out.println(ProcessDelay("1d1h"));
 		
 		
 		

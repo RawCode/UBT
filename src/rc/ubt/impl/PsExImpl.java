@@ -1,6 +1,8 @@
 package rc.ubt.impl;
 
 import java.lang.reflect.Method;
+
+import org.apache.logging.log4j.LogManager;
 import org.bukkit.entity.Player;
 
 @SuppressWarnings("all")
@@ -15,7 +17,9 @@ public class PsExImpl {
 			xhas = c.getDeclaredMethod("has", Player.class,String.class);
 			xpex = c.getDeclaredMethod("getPlugin", null).invoke(null, null);
 		}
-		catch(Throwable t){t.printStackTrace();};
+		catch(Throwable t){
+			LogManager.getLogger().debug("PermissionsEx not found, using OP state instead");
+		};
 	}
 	
 	static Method xhas = null;
