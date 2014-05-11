@@ -105,7 +105,6 @@ public class Loader extends JavaPlugin implements Runnable
 		
 		
 	}
-
 	public void run() 
 	{
     	LogManager.getLogger().debug("TICKZERO");

@@ -38,16 +38,12 @@ public class ForcedPvP implements Listener {
 
 	long 	TimeStamp;
 	String 	Source;
+	static private String Player2Key(Player p){return p.getName().toLowerCase();}
 	ForcedPvP(Player Target,String Owner,long Offset)
 	{
 		this.TimeStamp = Offset;
 		this.Source    = Owner;
 		MAP.put(Player2Key(Target), this);
-	}
-	
-	static private String Player2Key(Player p)
-	{
-		return p.getName().toLowerCase();
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR,ignoreCancelled = true)

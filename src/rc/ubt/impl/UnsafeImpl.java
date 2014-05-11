@@ -11,6 +11,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.locks.LockSupport;
 
@@ -204,19 +205,87 @@ public class UnsafeImpl
 		Thread.sleep(1000);
 		System.out.println("Message second later from " + Thread.currentThread());
 	}
+
+	static public int[] Key2Value = new int[256];
+	public static void Initialize()
+	{
+		Arrays.fill(Key2Value, 1488);
+		Key2Value['0'] = 0;
+		Key2Value['1'] = 1;
+		Key2Value['2'] = 2;
+		Key2Value['3'] = 3;
+		Key2Value['4'] = 4;
+		Key2Value['5'] = 5;
+		Key2Value['6'] = 6;
+		Key2Value['7'] = 7;
+		Key2Value['8'] = 8;
+		Key2Value['9'] = 9;
+		Key2Value['m'] = 60;
+		Key2Value['h'] = 3600;
+		Key2Value['d'] = 86400;
+	}
+	
+	public static long ProcessDelay(String Input)
+	{
+		byte[] RawData = Input.getBytes();
+		
+		int buffer   = 0;
+		int brate    = 1;
+		int multiply = 0;
+		int result   = 0;
+		int temp     = 0;
+		int step     = RawData.length-1;
+		
+		
+		for(;;)
+		{
+			temp = Key2Value[RawData[step]];
+			
+			if (temp == 1488) return -1;
+			
+			if (temp > 10)
+			{
+				if (multiply != 0)
+				{
+					result+= buffer * multiply;
+				}
+				multiply = temp;
+				buffer = 0;
+				brate = 1;
+			}
+			else
+			{
+				buffer+= temp * brate;
+				brate*= 10;
+			}
+			
+			step--;
+			
+			if (step == -1)
+			{
+				result+= buffer * multiply;
+				return result;
+			}
+		}
+	}
 	
 	static public void main(String[] args) throws Throwable {
+		Initialize();
+		System.out.println(ProcessDelay("1m1h1d"));
+		
+		
+		
 
 		//working offheap object sample
 		
 		//must check rules of memory copy, since for some reason it does not copy
 		//from object to object and this is not good
 		
-		TEST testA = new TEST();
+		//TEST testA = new TEST();
 		
-		testA.A = 666;
-		testA.B = 666;
-		testA.C = new Integer(888);
+	//	testA.A = 666;
+	//	testA.B = 666;
+	//	testA.C = new Integer(888);
 		
 		//int A = unsafe.getInt(test, 4l);
 		//int B = unsafe.getInt(test, 8l);
@@ -226,25 +295,25 @@ public class UnsafeImpl
 		//System.out.println(B);
 		//System.out.println(C);
 		
-		long TRY = unsafe.allocateMemory(32);
+		//long TRY = unsafe.allocateMemory(32);
 		
-		Object FabA = ID2Object(TRY/8);
+		//Object FabA = ID2Object(TRY/8);
 		//Object FabB = ID2Object((TRY/8)+1);
 		
 		//System.out.println(TRY);
 		
-		unsafe.copyMemory(testA, 0, null, TRY, 32);
+		//unsafe.copyMemory(testA, 0, null, TRY, 32);
 		//unsafe.copyMemory(testA, 8, null, TRY+16, 4);
 		
 		//((TEST)FabA).C = null;
 		
-		System.out.println(((TEST)FabA).C);
+		//System.out.println(((TEST)FabA).C);
 		
 		
-		Object2Trace(FabA);
+	//	Object2Trace(FabA);
 		
-		Object2Trace(testA);
-		((TEST)FabA).D = null;
+		//Object2Trace(testA);
+		//((TEST)FabA).D = null;
 		
 		//Object2Trace(FabB);
 		

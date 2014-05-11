@@ -36,7 +36,6 @@ public class ForcedRespawn implements Listener, Runnable {
 	}
 	
 	public void run() {
-		
 		if (!MinecraftServer.getServer().getPlayerList().players.contains(target.getHandle()))
 			return;//do not process uncontrolled players
 		
