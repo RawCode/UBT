@@ -3,7 +3,6 @@ package rc.ubt.cmde;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -43,22 +42,22 @@ public class Silencio implements Listener
 	//flags used for punishment tracking
 	//kicking player and banning for short time (not persistent)
 	//also can be stored here
-	static String   PER   = "UBT.Bypass";
+	static String PER    = "UBT.Bypass";
 	
+	//flags added by += operator and extracted by & operator
 	static int TYPE_INFO = 0x01; //Non punishment information
 	static int TYPE_GEN  = 0x02; //Generic punishment
 	static int TYPE_HEL  = 0x04; //Silent punishment
 	static int TYPE_PERM = 0x08; //Persistent punishment
 	
+	/** container section start*/
+	static HashMap<String,Silencio> MAP = new HashMap<String,Silencio>();
 	String Target;
 	String Source;
 	long   Stamp;
 	String Reason;
 	int    Flags;
 	
-	
-	static HashMap<String,Silencio> MAP = new HashMap<String,Silencio>();
-
 	public Silencio(String Target, String Source, long Stamp, String Reason, int Flags)
 	{
 		this.Target = Target;
@@ -68,13 +67,11 @@ public class Silencio implements Listener
 		this.Flags  = Flags;
 		MAP.put(Target, this);
 	};
-	
+	/** container section end*/
 	
 	public String toString()
 	{
-		if ((Flags & TYPE_HEL) != 0)
-			return "H#" + Target + " by " + Source + " expire in " + ReverseDelay(Stamp) + " cause " + Reason;
-		return "G#" + Target + " by " + Source + " expire in " + ReverseDelay(Stamp) + " cause " + Reason;
+		return Target + " by " + Source + " expire in " + ReverseDelay(Stamp) + " cause " + Reason;
 	}
 		
 	public static String ReverseDelay(long Input)
@@ -95,10 +92,10 @@ public class Silencio implements Listener
 		
 		long m = tmp / 60;
 		
-		if (m == 0)
+		if (m < 0 & h < 0 & d < 0)
 			return "soon";
 		
-		return m+"m"+(h>0 ? h+"h" : "")+(d>0 ? d+"d" : "");
+		return m+"m"+(h > 0 ? h+"h" : "")+(d > 0 ? d + "d" : "");
 	}
 	
 	public static long ProcessDelay(String Input)
@@ -173,11 +170,12 @@ public class Silencio implements Listener
 			event.getPlayer().sendMessage("Список банов чата:");
 			
 			Iterator<Silencio> i = MAP.values().iterator();
-			
+			boolean b = false;
 			while(i.hasNext())
 			{
 				Silencio s = i.next();
-				event.getPlayer().sendMessage(s.toString());
+				b = !b;
+				event.getPlayer().sendMessage((b ? ChatColor.GRAY : ChatColor.DARK_GRAY) + s.toString());
 			}
 			event.setCancelled(true);
 			return;
@@ -213,9 +211,7 @@ public class Silencio implements Listener
 			}
 			
 			Delay*= 1000;
-			System.out.println(Delay);
 			Delay+= System.currentTimeMillis();
-			System.out.println(Delay);
 			
 			new Silencio(Data[1],event.getPlayer().getName(),Delay,Cause,hellish ? TYPE_HEL : TYPE_GEN);
 			
@@ -233,12 +229,10 @@ public class Silencio implements Listener
 		//there is no such player in map
 		if (s == null) return;
 		
-		System.out.println(s.Stamp);
-		System.out.println(System.currentTimeMillis());
-		
 		if (s.Stamp < System.currentTimeMillis())
 		{
 			MAP.remove(Name);
+			@SuppressWarnings("deprecation")
 			Player source = Bukkit.getPlayer(s.Source);
 			if (source != null)
 				source.sendMessage(ChatColor.RED + "Наказание игрока "+ ChatColor.YELLOW + Name + " истекло!");
@@ -247,7 +241,6 @@ public class Silencio implements Listener
 		
 		if ((s.Flags & TYPE_HEL) != 0)
 		{
-			System.out.println("Hellish ban triggered");
 			event.getRecipients().clear();
 			event.getRecipients().add(event.getPlayer());
 			return;
