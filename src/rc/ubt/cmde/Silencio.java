@@ -92,7 +92,7 @@ public class Silencio implements Listener
 		
 		long m = tmp / 60;
 		
-		if (m < 0 & h < 0 & d < 0)
+		if (m <= 0 & h <= 0 & d <= 0)
 			return "soon";
 		
 		return m+"m"+(h > 0 ? h+"h" : "")+(d > 0 ? d + "d" : "");
@@ -185,7 +185,7 @@ public class Silencio implements Listener
 		{
 			if (!PsExImpl.has(event.getPlayer(), PER)) return;
 			hellish = Order.equals("fmute");
-			if (Data.length < 3)
+			if (Data.length < 4)
 			{
 				event.getPlayer().sendMessage(ChatColor.RED + "Необходимо указывать ник цели, срок мута и комментарий");
 				event.setCancelled(true);

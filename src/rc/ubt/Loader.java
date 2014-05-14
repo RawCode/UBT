@@ -70,11 +70,14 @@ public class Loader extends JavaPlugin implements Runnable
 		/** Unwanted <vanilla> commands */
 		SimpleCommandMap scm = ((CraftServer)Bukkit.getServer()).getCommandMap();
 		Map knownCommands = (Map) UnsafeImpl.getObject(scm, "knownCommands");
-		//knownCommands.remove("reload");
+		knownCommands.remove("reload");
 		knownCommands.remove("help");
+		knownCommands.remove("?");
 		knownCommands.remove("list");
 		knownCommands.remove("seed");
 		knownCommands.remove("me");
+		knownCommands.remove("pl");
+		knownCommands.remove("plugins");
 		
 		/** If server running in conversion mode - replace world generator */
 		if (CONVERSION){
@@ -110,8 +113,8 @@ public class Loader extends JavaPlugin implements Runnable
 	public void run() 
 	{
 		LogManager.getLogger().debug("TICKZERO");
-
-	    new PsExImpl();
+		
+		new PsExImpl();
 		new AutoSave();
 		new CustomLogin();
 		new ForcedPvP();
@@ -125,19 +128,17 @@ public class Loader extends JavaPlugin implements Runnable
 	
 	public void onEnable() 
 	{
-		System.out.println(System.getProperty("OLD", ""));
-    	System.setProperty("OLD", "TRUE");
     	if (CONVERSION)
     		LogManager.getLogger().debug("STARTUP");
     	else
     		LogManager.getLogger().debug("POSTWORLD");
     	
-		Bukkit.getScheduler().runTask(this, this);
+    	Bukkit.getScheduler().runTask(this, this);
     }
     
 	public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) 
     {
-    	LogManager.getLogger().debug("Dome Fuji Survival generator will be used for " + worldName);
-        return new Generator_DFS();
+		LogManager.getLogger().debug("Dome Fuji Survival generator will be used for " + worldName);
+		return new Generator_DFS();
     }
 }
