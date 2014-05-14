@@ -28,6 +28,7 @@ public class AutoSave implements Runnable, Listener
 	
 	public AutoSave()
 	{
+		Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);
 		BukkitScheduler scheduler = Bukkit.getScheduler();
 		scheduler.runTaskTimer(Loader.INSTANCE, new AutoSave(null),0,1L);
 	}

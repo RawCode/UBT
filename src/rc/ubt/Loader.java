@@ -70,7 +70,7 @@ public class Loader extends JavaPlugin implements Runnable
 		/** Unwanted <vanilla> commands */
 		SimpleCommandMap scm = ((CraftServer)Bukkit.getServer()).getCommandMap();
 		Map knownCommands = (Map) UnsafeImpl.getObject(scm, "knownCommands");
-		knownCommands.remove("reload");
+		//knownCommands.remove("reload");
 		knownCommands.remove("help");
 		knownCommands.remove("list");
 		knownCommands.remove("seed");
@@ -125,6 +125,8 @@ public class Loader extends JavaPlugin implements Runnable
 	
     public void onEnable()
     {
+    	System.out.println(System.getProperty("OLD", ""));
+    	System.setProperty("OLD", "TRUE");
     	if (CONVERSION)
     		LogManager.getLogger().debug("STARTUP");
     	else
