@@ -106,26 +106,26 @@ public class Loader extends JavaPlugin implements Runnable
 		
 		
 	}
+	
 	public void run() 
 	{
-    	LogManager.getLogger().debug("TICKZERO");
-    	
-    	new PsExImpl();
-    	new AutoSave();
-    	new CustomLogin();
-    	new ForcedPvP();
-    	new ForcedRespawn();
-    	new Silencio();
+		LogManager.getLogger().debug("TICKZERO");
 
-    	/**  TESTING section begin*/
-    	if (!TESTING) return;
-    	
-    	new Tester();
+	    new PsExImpl();
+		new AutoSave();
+		new CustomLogin();
+		new ForcedPvP();
+		new ForcedRespawn();
+		new Silencio();
+
+		/** TESTING section begin */
+		if (!TESTING) return;
+		new Tester();
 	}
 	
-    public void onEnable()
-    {
-    	System.out.println(System.getProperty("OLD", ""));
+	public void onEnable() 
+	{
+		System.out.println(System.getProperty("OLD", ""));
     	System.setProperty("OLD", "TRUE");
     	if (CONVERSION)
     		LogManager.getLogger().debug("STARTUP");
@@ -135,7 +135,8 @@ public class Loader extends JavaPlugin implements Runnable
 		Bukkit.getScheduler().runTask(this, this);
     }
     
-    public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) {
+	public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) 
+    {
     	LogManager.getLogger().debug("Dome Fuji Survival generator will be used for " + worldName);
         return new Generator_DFS();
     }
