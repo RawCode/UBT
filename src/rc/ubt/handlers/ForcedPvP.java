@@ -1,4 +1,4 @@
-package rc.ubt.hnde;
+package rc.ubt.handlers;
 
 import java.util.HashMap;
 

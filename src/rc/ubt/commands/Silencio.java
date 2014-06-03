@@ -1,4 +1,4 @@
-package rc.ubt.cmde;
+package rc.ubt.commands;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import rc.ubt.Loader;
-import rc.ubt.impl.PsExImpl;
+import rc.ubt.implementations.PsExImpl;
 
 public class Silencio implements Listener
 {
@@ -42,7 +42,8 @@ public class Silencio implements Listener
 	//flags used for punishment tracking
 	//kicking player and banning for short time (not persistent)
 	//also can be stored here
-	static String PER    = "UBT.Bypass";
+	static String PER_GENERIC	= "UBT.Mute";
+	static String PER_SUPER		= "UBT.sMute";
 	
 	//flags added by += operator and extracted by & operator
 	static int TYPE_INFO = 0x01; //Non punishment information
@@ -159,11 +160,11 @@ public class Silencio implements Listener
 		
 		if (Order.equals("mlist"))
 		{
-			if (!PsExImpl.has(event.getPlayer(), PER)) return;
+			if (!PsExImpl.has(event.getPlayer(), PER_SUPER)) return;
 			
 			if (MAP.isEmpty())
 			{
-				event.getPlayer().sendMessage("Игроков с банчатом нет. Быть может, пора исправить положение?");
+				event.getPlayer().sendMessage("�?гроков с банчатом нет. Быть может, пора исправить положение?");
 				return;
 			}
 			
@@ -183,8 +184,9 @@ public class Silencio implements Listener
 
 		if (Order.equals("mute") || Order.equals("fmute"))
 		{
-			if (!PsExImpl.has(event.getPlayer(), PER)) return;
-			hellish = Order.equals("fmute");
+			if (!PsExImpl.has(event.getPlayer(), PER_GENERIC)) return;
+			hellish = Order.equals("fmute") && PsExImpl.has(event.getPlayer(), PER_SUPER);
+			//Hellbanning allowed only for users with special permission
 			if (Data.length < 4)
 			{
 				event.getPlayer().sendMessage(ChatColor.RED + "Необходимо указывать ник цели, срок мута и комментарий");
@@ -203,7 +205,7 @@ public class Silencio implements Listener
 			if (hellish)
 			{
 				event.getPlayer().sendMessage(ChatColor.YELLOW + Data[1] + " толсто заткнут на " + Delay + " секунд.");
-				event.getPlayer().sendMessage(ChatColor.RED + "Используйте с умом цель не знает, что она в муте");
+				event.getPlayer().sendMessage(ChatColor.RED + "�?спользуйте с умом цель не знает, что она в муте");
 			}
 			else
 			{

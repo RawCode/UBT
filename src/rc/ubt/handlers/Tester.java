@@ -1,4 +1,4 @@
-package rc.ubt;
+package rc.ubt.handlers;
 
 import java.io.BufferedOutputStream;
 import java.io.FileDescriptor;
@@ -14,14 +14,17 @@ import net.minecraft.server.v1_7_R3.NBTTagList;
 import net.minecraft.server.v1_7_R3.NBTTagString;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.craftbukkit.v1_7_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_7_R3.inventory.CraftItemStack;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
@@ -29,7 +32,8 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import rc.ubt.impl.UnsafeImpl;
+import rc.ubt.Loader;
+import rc.ubt.implementations.UnsafeImpl;
 
 public class Tester implements Listener
 {
@@ -51,17 +55,48 @@ public class Tester implements Listener
 	}
 	
 	@EventHandler()
+	public void OnDeath(PlayerRespawnEvent e)
+	{
+		new Throwable().printStackTrace();
+		//System.out.println("LOAD " + e.getChunk() + "--" + e.isNewChunk());
+		//i want to know who loaded this chunk and who supports it
+	}
+	
+	@EventHandler()
 	public void OnChunkPopulateEvent(ChunkPopulateEvent e)
 	{
 		//System.out.println("POPULATE " + e.getChunk());
 		//i want to know who caused chunk population
 	}
 	
-	@EventHandler()
+	
+	int pX;
+	int pZ;
+	
+	boolean firstrun = true;
+	boolean traceshow = true;
+	
+	//@EventHandler()
 	public void OnChunkUnloadEvent(ChunkUnloadEvent e)
 	{
-		//System.out.println("UNLOAD " + e.getChunk());
-		//i want to know who was last player in unloaded chunk
+		if (firstrun)
+		{
+			pX = e.getChunk().getX();
+			pZ = e.getChunk().getZ();
+			firstrun = false;
+		}
+		
+		if (e.getChunk().getX() == pX & e.getChunk().getZ() == pZ)
+		{
+			System.out.println("UNLOAD " + e.getChunk());
+			e.setCancelled(true);
+			
+			if (traceshow)
+			{
+				new Throwable().printStackTrace();
+				traceshow = false;
+			}
+		}
 	}
 	
 	@EventHandler()
@@ -75,10 +110,10 @@ public class Tester implements Listener
 	public void OnChat(AsyncPlayerChatEvent tt)
 	{
 		
-		((CraftPlayer)tt.getPlayer()).getHandle().setScore(666);
+		
+		//tt.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, Integer.MAX_VALUE, 10));
 		
 		if (true) return;
-		tt.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, Integer.MAX_VALUE, 1));
 		
 		FileOutputStream fdOut = new FileOutputStream(FileDescriptor.out);
 		

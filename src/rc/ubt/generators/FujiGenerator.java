@@ -1,4 +1,4 @@
-package rc.ubt.wgen;
+package rc.ubt.generators;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,9 +10,9 @@ import org.bukkit.block.Biome;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 
-import rc.ubt.impl.SimplexImpl;
+import rc.ubt.implementations.SimplexImpl;
 
-public class Generator_DFS extends ChunkGenerator {
+public class FujiGenerator extends ChunkGenerator {
 	
 	//Dome Fuji Survival
 	//Hardcoded defaults
@@ -149,7 +149,7 @@ public class Generator_DFS extends ChunkGenerator {
     }
 
     public List<BlockPopulator> getDefaultPopulators(World world) {
-        return Arrays.asList((BlockPopulator)new Populator_DFS());
+        return Arrays.asList((BlockPopulator)new FujiPopulator());
     }
     
     public boolean canSpawn(World world, int x, int z) {

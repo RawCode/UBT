@@ -1,4 +1,4 @@
-package rc.ubt.hnde;
+package rc.ubt.handlers;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 
 import rc.ubt.Loader;
-import rc.ubt.impl.PsExImpl;
+import rc.ubt.implementations.PsExImpl;
 
 public class CustomLogin implements Listener {
 	public CustomLogin(){Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);}

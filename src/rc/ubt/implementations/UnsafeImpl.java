@@ -1,4 +1,4 @@
-package rc.ubt.impl;
+package rc.ubt.implementations;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -22,6 +22,7 @@ import sun.reflect.Reflection;
 
 /**
   * sandbox key for obfuscated stuff -Djava.security.manager
+  * this key can be used inside "run setup" in order to run malware code without any risk of infection
   */
 
 /**TODO 
@@ -31,25 +32,30 @@ import sun.reflect.Reflection;
  * @author RawCode
  *
  */
-@SuppressWarnings("all")
+@SuppressWarnings("all") /** in other case you will see tons of warnings */
 public class UnsafeImpl
 {
 	/**
 	 * Java process IO
 	 * This class allows to read and write java process memory directly via unsafe natives
-	 * Same stuff already implemented in jillegal but i dont evedrop on it's sources for fun
-	 * 
+	 * Same stuff already implemented in jillegal but i dont evedrop on it's sources to prevent spoilers
+	 */
+	 /* if you dont want to spoil fun of original research dont read this class */
+	 /** 
 	 * Unsafe internally used by Reflections, basically this is reflections with all security and safety removed
 	 * Java objects is API over internal OOPs
 	 * 
-	 * !!!Platform\version dependant!!!
+	 * <Platform\version dependant>
+	 * 64 bit JVM only
 	 * Tested platform Windows 7 - x64 - CompressedOOPS (less then 32gb memory)
 	 */
 	
 	public static Unsafe unsafe;
 	static Object anchor;
 	static long   offset;
-	static
+	
+	
+	static /**<cinit>*/
 	{
 		try
 			{
@@ -67,7 +73,7 @@ public class UnsafeImpl
 	
 	static public long Object2ID(Object O){
 		anchor = O;
-		return unsafe.getInt(UnsafeImpl.class, offset) & 0xFFFFFFFFL;
+		return unsafe.getLong(UnsafeImpl.class, offset);
 	}
 	
 	static public Object ID2Object(long ID){
@@ -75,24 +81,23 @@ public class UnsafeImpl
 		return anchor;
 	}
 	
-	static public void Object2Trace(Object O){
-		Object2Trace(O,64);
+	static public String Object2Trace(Object O){
+		return Object2Trace(O,64);
 	}
 	
-	static public void Object2Trace(Object O,int L){
-		System.out.println("Trace of " + Long.toHexString(Object2ID(O)));
-        for (int i = 0; i < L; i++){
-            System.out.print(String.format("%02X ", unsafe.getByte(O,(long)i)));
-            	if (i % 4 == 3)
-            		System.out.println();
+	static public String Object2Trace(Object O,int L){
+		StringBuilder sb = new StringBuilder();
+		sb.append("Trace of " + Long.toHexString(Object2ID(O)));
+		sb.append("\n");
+        for (long i = 0; i < L; i++){
+        	sb.append(String.format("%02X ", unsafe.getByte(O,i)));
+            	if (i % 4 == 3 && i != L-1)
+            		sb.append("\n");
         }
-        System.out.println();
+        return sb.toString();
 	}
 	
-	//result are extremely easy to cache
-	//we need from field only two params - type (static or not) and offset, nothing more nothing less
-	//this can be cached easy by Source+Name
-	//since currently there is no real need of high perfomance this feature postnoted
+	//this method will return first found field matching any of given names
 	static private Field fetchField(Class Source,String... Names)
 	{
 		for(;Source != Object.class;Source = Source.getSuperclass())
@@ -105,195 +110,74 @@ public class UnsafeImpl
 		return null;
 	}
 	
-	//primitive cast method for getting stuff from slot
-	
-	//put methods are word and dword
-	
-	
-	static public void putObjectStatic(Class Owner, Object Value,String... Names)
+	/** this method allows to load classes ignoring package hierarchy */
+	static private Class DefineArbitraryClass(byte[] Data)
 	{
-		Field Target = fetchField(Owner,Names);
-		if ((Target.getModifiers() & 8) == 0)
-		{
-			return;
-		}
-		unsafe.putObject(Owner,unsafe.staticFieldOffset(Target),Value);
+		if (Data.length < 32) return null; //obviously invalid input
+		
+		//offsets 14 and 15 used to store lenght of subsequent classname section
+		int NameLenght = Data[14]*255+Data[15];
+		byte[] NameRaw = new byte[NameLenght];
+		System.arraycopy(Data, 16, NameRaw, 0, NameLenght);
+		return unsafe.defineClass(new String(NameRaw), Data, 0, Data.length);
 	}
 	
+	/** unsafeIO over objects */
+	static public void putObject(Class Owner, Object Value,String... Names)
+	{unsafe.putObject(Owner,unsafe.staticFieldOffset(fetchField(Owner,Names)),Value);}
+	static public Object getObject(Class Owner, String... Names)
+	{return unsafe.getObject(Owner,unsafe.staticFieldOffset(fetchField(Owner,Names)));}
 	static public void putObject(Object Owner, Object Value,String... Names)
-	{
-		Field Target = fetchField(Owner.getClass(),Names);
-		if ((Target.getModifiers() & 8) == 0)
-		{
-			unsafe.putObject(Owner,unsafe.objectFieldOffset(Target),Value);
-			return;
-		}
-		unsafe.putObject(Owner.getClass(),unsafe.staticFieldOffset(Target),Value);
-	}
-	
+	{unsafe.putObject(Owner,unsafe.objectFieldOffset(fetchField(Owner.getClass(),Names)),Value);}
 	static public Object getObject(Object Owner, String... Names)
+	{return unsafe.getObject(Owner,unsafe.objectFieldOffset(fetchField(Owner.getClass(),Names)));}
+	
+	/** unsafeIO over ints */
+	static public void putInt(Object Owner, int Value,String... Names)
+	{unsafe.putInt(Owner,unsafe.objectFieldOffset(fetchField(Owner.getClass(),Names)),Value);}
+	static public int getInt(Object Owner, String... Names)
+	{return unsafe.getInt(Owner,unsafe.objectFieldOffset(fetchField(Owner.getClass(),Names)));}
+	static public int getInt(Class Owner, String... Names)
+	{return unsafe.getInt(Owner,unsafe.staticFieldOffset(fetchField(Owner,Names)));}
+	static public void putInt(Class Owner, int Value,String... Names)
+	{unsafe.putInt(Owner,unsafe.staticFieldOffset(fetchField(Owner,Names)),Value);}
+	
+	static public void FullTracePrint()
 	{
-		Field Target = fetchField(Owner.getClass(),Names);
-		if ((Target.getModifiers() & 8) == 0)
-		{
-			return unsafe.getObject(Owner,unsafe.objectFieldOffset(Target));
-		}
-		return unsafe.getObject(Owner.getClass(),unsafe.staticFieldOffset(Target));
-	}
-	
-	public static void putInt(Object Owner, int Value,String... Names)
-	{
-		Field Target = fetchField(Owner.getClass(),Names);
-		if ((Target.getModifiers() & 8) == 0)
-		{
-			unsafe.putInt(Owner,unsafe.objectFieldOffset(Target),Value);
-			return;
-		}
-		unsafe.putInt(Owner.getClass(),unsafe.staticFieldOffset(Target),Value);
-	}
-	
-	static public Object getInt(Object Owner, String... Names)
-	{
-		Field Target = fetchField(Owner.getClass(),Names);
-		if ((Target.getModifiers() & 8) == 0)
-		{
-			return unsafe.getInt(Owner,unsafe.objectFieldOffset(Target));
-		}
-		return unsafe.getInt(Owner.getClass(),unsafe.staticFieldOffset(Target));
-	}
-	
-
-	
-	//I need complex all in one with caching and other stuff method backed by hashtable or something similar
-	//This method shoud allow me to read and write any field without any additional calls
-	//since memory and calculations footprint not soo heavy, i will need to benchmark hashtable backed version
-	//probably it will be faster to just reseak, then asking hashtable about values
-	
-	//integer have 4 words size
-	//string have 6 words size
-	//final File f = new File(MyClass.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-	
-	//1091        FileInputStream fdIn = new FileInputStream(FileDescriptor.in);
-	//1092        FileOutputStream fdOut = new FileOutputStream(FileDescriptor.out);
-	//1093        FileOutputStream fdErr = new FileOutputStream(FileDescriptor.err);
-	
-	
-	
-	
-	static private Thread mainref = null;
-
-	static public void RandomLockingMethodAPI(final boolean Forced) throws Throwable
-	{
-		
-		if (Thread.currentThread() == mainref && Forced)
-			new Thread()
-		{
-			public void run()
-			{
-				try
-				{
-					RandomLockingMethodAPI(Forced);
-				} catch (Throwable e){}
-			}
-		}.start();
-		else
-			RandomLockingMethodImpl();
-	}
-	
-	static public void RandomLockingMethodImpl() throws Throwable
-	{
-		Thread.sleep(1000);
-		System.out.println("Message second later from " + Thread.currentThread());
-	}
-
-	static public int[] Key2Value = new int[256];
-	public static void Initialize()
-	{
-		Arrays.fill(Key2Value, 1488);
-		Key2Value['0'] = 0;
-		Key2Value['1'] = 1;
-		Key2Value['2'] = 2;
-		Key2Value['3'] = 3;
-		Key2Value['4'] = 4;
-		Key2Value['5'] = 5;
-		Key2Value['6'] = 6;
-		Key2Value['7'] = 7;
-		Key2Value['8'] = 8;
-		Key2Value['9'] = 9;
-		Key2Value['m'] = 60;
-		Key2Value['h'] = 3600;
-		Key2Value['d'] = 86400;
-	}
-	
-	public static long ProcessDelay(String Input)
-	{
-		byte[] RawData = Input.getBytes();
-		
-		int buffer   = 0;
-		int brate    = 1;
-		int multiply = 1;
-		int result   = 0;
-		int temp     = 0;
-		int step     = RawData.length-1;
-		
+		ThreadGroup List = Thread.currentThread().getThreadGroup();
 		
 		for(;;)
 		{
-			temp = Key2Value[RawData[step]];
-			
-			if (temp == 1488) return -1;
-			
-			if (temp > 10)
+			if (List.getParent() == null)
+				break;
+			List = List.getParent();
+				
+		}
+		
+		Thread[] data = new Thread[List.activeCount()];
+		List.enumerate(data);
+		
+		for (Thread t : data)
+		{
+			System.out.println(t);
+			for (StackTraceElement e : t.getStackTrace())
 			{
-				result+= buffer * multiply;
-				multiply = temp;
-				buffer = 0;
-				brate = 1;
-			}
-			else
-			{
-				buffer+= temp * brate;
-				brate*= 10;
-			}
-			
-			step--;
-			
-			if (step == -1)
-			{
-				result+= buffer * multiply;
-				return result;
+				System.out.println(e);
 			}
 		}
 	}
-	
-	public static String ReverseDelay(long Input)
-	{
-		long now = System.currentTimeMillis();
-		long tmp = ( Input - now ) / 1000;
-		
-		if (tmp < 1)
-			return "expired";
-		
-		long d = tmp / 86400;
-		if (d > 0)
-			tmp-= d * 86400;
-		
-		long h = tmp / 3600;
-		if (h > 0)
-			tmp-= h * 3600;
-		
-		long m = tmp / 60;
-		
-		return m+"m"+(h>0 ? h+"h" : "")+(d>0 ? d+"d" : "");
-	}
-	
-	static public void main(String[] args) throws Throwable {
-		Initialize();
-		System.out.println(ProcessDelay("1d1h"));
-		
-		
-		
 
+	static public void main(String[] args) throws Throwable {
+		
+		//ThreadRoot().enumerate(a);
+        
+		//for (Thread e : a)
+		//{
+		//	System.out.println(e);
+		//}
+		
+		
+		
 		//working offheap object sample
 		
 		//must check rules of memory copy, since for some reason it does not copy

@@ -1,4 +1,4 @@
-package rc.ubt.impl;
+package rc.ubt.implementations;
 
 import java.lang.reflect.Method;
 
@@ -18,7 +18,7 @@ public class PsExImpl {
 			xpex = c.getDeclaredMethod("getPlugin", null).invoke(null, null);
 		}
 		catch(Throwable t){
-			LogManager.getLogger().error("PermissionsEx not found, using OP state instead");
+			LogManager.getLogger().error("PermissionsEx not found, using OP state instead!");
 		};
 	}
 	

@@ -1,4 +1,4 @@
-package rc.ubt.wgen;
+package rc.ubt.generators;
 
 import java.util.Random;
 
@@ -8,9 +8,9 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.BlockPopulator;
 
-import rc.ubt.impl.SimplexImpl;
+import rc.ubt.implementations.SimplexImpl;
 
-public class Populator_DFS extends BlockPopulator 
+public class FujiPopulator extends BlockPopulator 
 {
 	//generic howto refactoring required.
 	

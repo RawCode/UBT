@@ -4,7 +4,11 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import net.minecraft.server.v1_7_R3.WorldServer;
@@ -24,51 +28,52 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import rc.ubt.cmde.Silencio;
-import rc.ubt.hnde.CustomLogin;
-import rc.ubt.hnde.ForcedPvP;
-import rc.ubt.hnde.ForcedRespawn;
-import rc.ubt.impl.PsExImpl;
-import rc.ubt.impl.UnsafeImpl;
-import rc.ubt.task.AutoSave;
-import rc.ubt.wgen.Generator_DFS;
+import rc.ubt.commands.Silencio;
+import rc.ubt.generators.FujiGenerator;
+import rc.ubt.handlers.CustomLogin;
+import rc.ubt.handlers.ForcedPvP;
+import rc.ubt.handlers.ForcedRespawn;
+import rc.ubt.handlers.Respawn;
+import rc.ubt.handlers.Tester;
+import rc.ubt.implementations.PsExImpl;
+import rc.ubt.implementations.UnsafeImpl;
+import rc.ubt.runnables.AutoSave;
 
 @SuppressWarnings("all")
 public class Loader extends JavaPlugin implements Runnable
 {
-	/** It will be nice to see list of modules with desired loading order
-	 * name.class,CINIT,INIT,LOAD,PREWORLD,POSTWORLD,FIRSTTICK,DELAYED.AFTER PLUGIN X
-	 */
 	public static JavaPlugin INSTANCE;
-	/** <init> section */{
+	
+	{/**<init>*/
 		INSTANCE = this;
 	}
 	
-	public static boolean CONVERSION = false;
-	public static boolean DEBUGGING  = false;
-	public static boolean TESTING    = false;
+	/** for information only, there is no reason to store these states in one more place */
+	private static boolean CONVERSION = false; // will perform singletron modifications
+	private static boolean DEBUGGING  = false; // will output debug information to log
+	private static boolean TESTING    = false; // will load additional handlers
 	
-	public boolean ConfigBoolean(String Key, boolean Default)
+	public boolean getOption(String _key, boolean _def)
 	{
-		if (this.getConfig().contains(Key))
-			return this.getConfig().getBoolean(Key);
-		this.getConfig().set(Key, Default);
-		return Default;
+		if (this.getConfig().contains(_key))
+			return this.getConfig().getBoolean(_key);
+		this.getConfig().set(_key, _def);
+		return _def;
 	}
 	
 	public void onLoad()
 	{
-		CONVERSION = ConfigBoolean("isConversion",false);
-		DEBUGGING  = ConfigBoolean("isDebugging" ,false);
-		TESTING    = ConfigBoolean("isTesting"   ,false);
+		CONVERSION = getOption("isConversion",false);
+		DEBUGGING  = getOption("isDebugging" ,false);
+		TESTING    = getOption("isTesting"   ,false);
 		
-		saveConfig();
+		saveConfig(); //sync configuration file with class
 		
-		if (DEBUGGING)
-			((org.apache.logging.log4j.core.Logger) LogManager.getLogger()).setLevel(Level.DEBUG);
+		/** alter log4j logging level to DEBUG if this options selected */
+		if (DEBUGGING) ((org.apache.logging.log4j.core.Logger) LogManager.getLogger()).setLevel(Level.DEBUG);
 
-		/** Unwanted <vanilla> commands */
-		SimpleCommandMap scm = ((CraftServer)Bukkit.getServer()).getCommandMap();
+		/** disable unwanted <vanilla> commands */
+		SimpleCommandMap scm = ((CraftServer) Bukkit.getServer()).getCommandMap();
 		Map knownCommands = (Map) UnsafeImpl.getObject(scm, "knownCommands");
 		knownCommands.remove("reload");
 		knownCommands.remove("help");
@@ -79,8 +84,9 @@ public class Loader extends JavaPlugin implements Runnable
 		knownCommands.remove("pl");
 		knownCommands.remove("plugins");
 		
-		/** If server running in conversion mode - replace world generator */
-		if (CONVERSION){
+		/** If server running in conversion mode - force world generator */
+		if (CONVERSION)
+		{
 			LogManager.getLogger().debug("Forcing world generator");
 			YamlConfiguration YC = (YamlConfiguration) UnsafeImpl.getObject(Bukkit.getServer(), "configuration");
 			ConfigurationSection ss = YC.createSection("worlds");
@@ -91,40 +97,30 @@ public class Loader extends JavaPlugin implements Runnable
 			UnsafeImpl.putObject(this.getDescription(), PluginLoadOrder.STARTUP, "order");
 		}
 	}
-	
-	static void Load(File Target)
-	{
-		//this is low level classloader, it will read classfile and construct class from it.
-		//when class constructed control will be passed into Load(Class)
-	}
-	
-	static void Load(Class Target)
-	{
-		//module loading dont need any checks
-		
-		//probably i just need to register plugin two times of ever two separate classes
-		//this will allow to handle preworld and postworld correctly without issues
-		
-		//secondary instance with same class by special flag and other startup order...
-		
-		
-	}
-	
+
 	public void run() 
 	{
 		LogManager.getLogger().debug("TICKZERO");
 		
-		new PsExImpl();
-		new AutoSave();
-		new CustomLogin();
-		new ForcedPvP();
-		new ForcedRespawn();
-		new Silencio();
+		//new PsExImpl();
+		//new AutoSave();
+		//new CustomLogin();
+		//new ForcedPvP();
+		new Respawn();
+		//new Silencio();
 
 		/** TESTING section begin */
-		if (!TESTING) return;
-		new Tester();
+		//if (!TESTING) return;
+		//new Tester();
 	}
+	
+	
+	//tick zero is OK but actually not
+	//i shoud perform on worldinit
+	
+	//try setting plugin priority to postworld after initial start
+	//this will allow to perform multiple "runs" from same code
+	
 	
 	public void onEnable() 
 	{
@@ -139,6 +135,6 @@ public class Loader extends JavaPlugin implements Runnable
 	public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) 
     {
 		LogManager.getLogger().debug("Dome Fuji Survival generator will be used for " + worldName);
-		return new Generator_DFS();
+		return new FujiGenerator();
     }
 }

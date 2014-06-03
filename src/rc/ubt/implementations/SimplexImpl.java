@@ -1,4 +1,4 @@
-package rc.ubt.impl;
+package rc.ubt.implementations;
 
 public class SimplexImpl
 {

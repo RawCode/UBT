@@ -1,4 +1,4 @@
-package rc.ubt.smpl;
+package rc.ubt.samples;
 
 public class ItemglowExplained
 {

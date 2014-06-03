@@ -1,6 +1,6 @@
-package rc.ubt.smpl;
+package rc.ubt.samples;
 
-import rc.ubt.impl.UnsafeImpl;
+import rc.ubt.implementations.UnsafeImpl;
 
 public class TrueObjectSizeExplained
 {
