@@ -1,4 +1,4 @@
-package rc.ubt.samples;
+package rc.ubt.demo;
 
 public class ConcurrencyExplained
 {

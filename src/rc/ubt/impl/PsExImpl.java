@@ -1,4 +1,4 @@
-package rc.ubt.implementations;
+package rc.ubt.impl;
 
 import java.lang.reflect.Method;
 

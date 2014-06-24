@@ -1,4 +1,4 @@
-package rc.ubt.commands;
+package rc.ubt.cmdh;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import rc.ubt.Loader;
-import rc.ubt.implementations.PsExImpl;
+import rc.ubt.impl.PsExImpl;
 
 public class Silencio implements Listener
 {
@@ -164,7 +164,7 @@ public class Silencio implements Listener
 			
 			if (MAP.isEmpty())
 			{
-				event.getPlayer().sendMessage("�?гроков с банчатом нет. Быть может, пора исправить положение?");
+				event.getPlayer().sendMessage("�?гроков с банчатом нет. Быть может, пора исправить положение?");
 				return;
 			}
 			
@@ -205,7 +205,7 @@ public class Silencio implements Listener
 			if (hellish)
 			{
 				event.getPlayer().sendMessage(ChatColor.YELLOW + Data[1] + " толсто заткнут на " + Delay + " секунд.");
-				event.getPlayer().sendMessage(ChatColor.RED + "�?спользуйте с умом цель не знает, что она в муте");
+				event.getPlayer().sendMessage(ChatColor.RED + "�?спользуйте с умом цель не знает, что она в муте");
 			}
 			else
 			{

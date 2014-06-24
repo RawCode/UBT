@@ -1,11 +1,13 @@
-package rc.ubt.implementations;
+package rc.ubt.impl;
 
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
@@ -142,33 +144,12 @@ public class UnsafeImpl
 	static public void putInt(Class Owner, int Value,String... Names)
 	{unsafe.putInt(Owner,unsafe.staticFieldOffset(fetchField(Owner,Names)),Value);}
 	
-	static public void FullTracePrint()
-	{
-		ThreadGroup List = Thread.currentThread().getThreadGroup();
-		
-		for(;;)
-		{
-			if (List.getParent() == null)
-				break;
-			List = List.getParent();
-				
-		}
-		
-		Thread[] data = new Thread[List.activeCount()];
-		List.enumerate(data);
-		
-		for (Thread t : data)
-		{
-			System.out.println(t);
-			for (StackTraceElement e : t.getStackTrace())
-			{
-				System.out.println(e);
-			}
-		}
-	}
-
+	
+	
 	static public void main(String[] args) throws Throwable {
 		
+		
+		FullTracePrint();
 		//ThreadRoot().enumerate(a);
         
 		//for (Thread e : a)

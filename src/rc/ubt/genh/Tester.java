@@ -1,4 +1,4 @@
-package rc.ubt.handlers;
+package rc.ubt.genh;
 
 import java.io.BufferedOutputStream;
 import java.io.FileDescriptor;
@@ -33,7 +33,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import rc.ubt.Loader;
-import rc.ubt.implementations.UnsafeImpl;
+import rc.ubt.impl.UnsafeImpl;
 
 public class Tester implements Listener
 {

@@ -28,16 +28,16 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import rc.ubt.commands.Silencio;
-import rc.ubt.generators.FujiGenerator;
-import rc.ubt.handlers.CustomLogin;
-import rc.ubt.handlers.ForcedPvP;
-import rc.ubt.handlers.ForcedRespawn;
-import rc.ubt.handlers.Respawn;
-import rc.ubt.handlers.Tester;
-import rc.ubt.implementations.PsExImpl;
-import rc.ubt.implementations.UnsafeImpl;
-import rc.ubt.runnables.AutoSave;
+import rc.ubt.cmdh.Silencio;
+import rc.ubt.genh.CustomLogin;
+import rc.ubt.genh.ForcedPvP;
+import rc.ubt.genh.ForcedRespawn;
+import rc.ubt.genh.Respawn;
+import rc.ubt.genh.Tester;
+import rc.ubt.impl.PsExImpl;
+import rc.ubt.impl.UnsafeImpl;
+import rc.ubt.task.AutoSave;
+import rc.ubt.wgen.FujiGenerator;
 
 @SuppressWarnings("all")
 public class Loader extends JavaPlugin implements Runnable

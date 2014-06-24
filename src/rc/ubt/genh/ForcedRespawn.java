@@ -1,4 +1,4 @@
-package rc.ubt.handlers;
+package rc.ubt.genh;
 
 
 import net.minecraft.server.v1_7_R3.EntityPlayer;

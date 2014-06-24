@@ -1,4 +1,4 @@
-package rc.ubt.runnables;
+package rc.ubt.task;
 
 import net.minecraft.server.v1_7_R3.WorldServer;
 
@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import rc.ubt.Loader;
-import rc.ubt.implementations.PsExImpl;
+import rc.ubt.impl.PsExImpl;
 
 public class AutoSave implements Runnable, Listener
 {
@@ -70,15 +70,15 @@ public class AutoSave implements Runnable, Listener
 		}
 	}
 	/*
-	String S1 = new String("проверка".getBytes("CP866"),"CP866"); //valid for logfile
-	String S2 = new String("проверка".getBytes(),"CP866"); //not valid completely
-	String S3 = new String("проверка".getBytes("CP866")); //valid for console
-	String S4 = new String("проверка"); //valid for logfile*/
+	String S1 = new String("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ".getBytes("CP866"),"CP866"); //valid for logfile
+	String S2 = new String("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ".getBytes(),"CP866"); //not valid completely
+	String S3 = new String("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ".getBytes("CP866")); //valid for console
+	String S4 = new String("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"); //valid for logfile*/
 	
-	//String S1 = new String("проверка".getBytes("CP1252"));
-	//String S2 = new String("проверка".getBytes("CP1251")); //this is logfile encoding
-	//String S3 = new String("проверка".getBytes("CP866")); //this is console encoding
-	//String S4 = new String("проверка".getBytes("UTF-8"));
+	//String S1 = new String("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ".getBytes("CP1252"));
+	//String S2 = new String("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ".getBytes("CP1251")); //this is logfile encoding
+	//String S3 = new String("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ".getBytes("CP866")); //this is console encoding
+	//String S4 = new String("пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ".getBytes("UTF-8"));
 	//System.out.println(S1);
 	//System.out.println(S2);
 	//System.out.println(S3);

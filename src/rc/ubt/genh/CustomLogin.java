@@ -1,4 +1,4 @@
-package rc.ubt.handlers;
+package rc.ubt.genh;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
@@ -12,7 +12,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 
 import rc.ubt.Loader;
-import rc.ubt.implementations.PsExImpl;
+import rc.ubt.impl.PsExImpl;
 
 public class CustomLogin implements Listener {
 	public CustomLogin(){Bukkit.getPluginManager().registerEvents(this, Loader.INSTANCE);}
@@ -37,7 +37,7 @@ public class CustomLogin implements Listener {
 		
 		long passed = System.currentTimeMillis() - offset;
 		if (passed <= DELAY){
-			event.disallow(Result.KICK_OTHER, ChatColor.RED + "ÎÆÈÄÀÉÒÅ " + (DELAY - passed)/1000 + " ÑÅÊÓÍÄ");
+			event.disallow(Result.KICK_OTHER, ChatColor.RED + "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ " + (DELAY - passed)/1000 + " ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 			return;
 		}
     }
@@ -51,7 +51,7 @@ public class CustomLogin implements Listener {
 				event.allow();
 				return;
 			}
-			event.setKickMessage(ChatColor.RED+"ÒÅÕÐÀÁÎÒÛ");
+			event.setKickMessage(ChatColor.RED+"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 		}
 	}
 
@@ -60,7 +60,7 @@ public class CustomLogin implements Listener {
 		
 		if (Bukkit.getServer().hasWhitelist())
 		{
-			event.setMotd("ÒÅÕÐÀÁÎÒÛ");
+			event.setMotd("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 			event.setMaxPlayers(0);
 			return;
 		}

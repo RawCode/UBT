@@ -1,4 +1,4 @@
-package rc.ubt.generators;
+package rc.ubt.wgen;
 
 import java.util.Random;
 
@@ -8,7 +8,7 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.BlockPopulator;
 
-import rc.ubt.implementations.SimplexImpl;
+import rc.ubt.impl.SimplexImpl;
 
 public class FujiPopulator extends BlockPopulator 
 {

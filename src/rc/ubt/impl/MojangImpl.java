@@ -1,4 +1,4 @@
-package rc.ubt.implementations;
+package rc.ubt.impl;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

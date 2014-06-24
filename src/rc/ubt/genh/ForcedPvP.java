@@ -1,4 +1,4 @@
-package rc.ubt.handlers;
+package rc.ubt.genh;
 
 import java.util.HashMap;
 
@@ -71,7 +71,7 @@ public class ForcedPvP implements Listener {
 			event.getPlayer().damage(19d);
 			SYNC = false;
 			Bukkit.broadcastMessage(ChatColor.RED + event.getPlayer().getDisplayName() + 
-					" покинул игру во время боя с " + Container.Source + " и был наказан!");
+					" пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ " + Container.Source + " пїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ!");
 			return;
 		}
 		MAP.remove(Key);
@@ -84,7 +84,7 @@ public class ForcedPvP implements Listener {
 		if (Container == null) return;
 
 		event.setJoinMessage(ChatColor.RED + event.getPlayer().getDisplayName() + 
-				" зашел в игру мёртвым, так как ранее вышел из боя с " + Container.Source);
+				" пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ пїЅ " + Container.Source);
 		MAP.remove(Key);
 	}
 
@@ -101,7 +101,7 @@ public class ForcedPvP implements Listener {
 		if (TIME - Container.TimeStamp <= DELAY) 
 		{
 			event.getPlayer().sendMessage(ChatColor.RED + 
-					"Нельзя использовать команды во время боя с " + Container.Source);
+					"пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ " + Container.Source);
 			event.setCancelled(true);
 			return;
 		}
