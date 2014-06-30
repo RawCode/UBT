@@ -19,7 +19,9 @@ import java.util.concurrent.locks.LockSupport;
 
 import org.bukkit.Bukkit;
 
+import sun.misc.SharedSecrets;
 import sun.misc.Unsafe;
+import sun.reflect.ConstantPool;
 import sun.reflect.Reflection;
 
 /**
@@ -146,10 +148,51 @@ public class UnsafeImpl
 	
 	
 	
+	static public void displayrandomstring(){
+		System.out.println("CHOOSEN BY FAIR DICE ROLL " + Math.random());
+		System.out.println(Object2ID("CHOOSEN BY FAIR DICE ROLL "));
+	}
+	
+	//883 884
+	
 	static public void main(String[] args) throws Throwable {
 		
+		char[] RawDataNotInterned = {'t','e','s','t'};
+		String InternedString = "test";
 		
-		FullTracePrint();
+		//System.out.println(Long.toHexString(Object2ID(InternedString)));
+		//System.out.println(Long.toHexString(Object2ID(new String(RawDataNotInterned))));
+		//System.out.println(Long.toHexString(Object2ID(new String(RawDataNotInterned))));
+		//System.out.println(Long.toHexString(Object2ID(new String(RawDataNotInterned).intern())));
+		
+		//putObject(InternedString,new char[5],"value");
+		
+		//System.out.println(Long.toHexString(Object2ID(new String(InternedString).intern())));
+		//System.out.println(Long.toHexString(Object2ID(new String(new char[5]).intern())));
+		
+		//if (new String(InternedString).intern() == new String(new char[5]).intern())
+			//System.out.println("valid");
+		
+		//System.out.println(Long.toHexString(Object2ID(new String(InternedString))));
+		//System.out.println(Long.toHexString(Object2ID(new String(InternedString))));
+		
+		//System.out.println(Long.toHexString(Object2ID(new String(InternedString).intern())));
+		
+		//String test  = "CHOOSEN BY FAIR DICE ROLL ";
+		//String test2 = "CHOOSEN BY UNFAIR ROLL____";
+		//char[] vessel = (char[]) getObject(test2,"value");
+		//displayrandomstring();
+		//putObject(test,vessel,"value");
+		//displayrandomstring();
+		//System.out.println(test.intern());
+		
+		//ConstantPool cp = SharedSecrets.getJavaLangAccess().getConstantPool(UnsafeImpl.class);
+		
+		//System.out.println(cp.getStringAt(222));
+		
+		
+		
+		
 		//ThreadRoot().enumerate(a);
         
 		//for (Thread e : a)

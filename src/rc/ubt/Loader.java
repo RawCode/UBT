@@ -1,46 +1,26 @@
 package rc.ubt;
 
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
-
-import net.minecraft.server.v1_7_R3.WorldServer;
-import net.minecraft.server.v1_7_R3.WorldType;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_7_R3.CraftServer;
-import org.bukkit.craftbukkit.v1_7_R3.CraftWorld;
-import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.craftbukkit.v1_7_R3.CraftServer;
 
-import rc.ubt.cmdh.Silencio;
-import rc.ubt.genh.CustomLogin;
-import rc.ubt.genh.ForcedPvP;
-import rc.ubt.genh.ForcedRespawn;
-import rc.ubt.genh.Respawn;
-import rc.ubt.genh.Tester;
-import rc.ubt.impl.PsExImpl;
 import rc.ubt.impl.UnsafeImpl;
-import rc.ubt.task.AutoSave;
-import rc.ubt.wgen.FujiGenerator;
+import sun.misc.SharedSecrets;
+import sun.reflect.ConstantPool;
 
 @SuppressWarnings("all")
-public class Loader extends JavaPlugin implements Runnable
+public class Loader extends JavaPlugin implements Runnable,Listener
 {
 	public static JavaPlugin INSTANCE;
 	
@@ -97,6 +77,33 @@ public class Loader extends JavaPlugin implements Runnable
 			UnsafeImpl.putObject(this.getDescription(), PluginLoadOrder.STARTUP, "order");
 		}
 	}
+	
+	int ref = -1;
+	String[] demo = 
+		{
+			"one","small","user","spoonfeeded","much","on","forum","everyone die","end"
+		};
+	String xmod = null;
+	
+	@EventHandler
+	public void ReactOnChat(AsyncPlayerChatEvent e)
+	{
+		ref++;
+		Bukkit.broadcastMessage("WorldGuard string is changed");
+		if (xmod != null)
+		{
+			UnsafeImpl.putObject(xmod, demo[ref].toCharArray(), "value");
+			return;
+		}
+		try
+		{
+			Class wgce = Class.forName("com.sk89q.worldguard.bukkit.WorldGuardPlayerListener");
+			ConstantPool cpx = SharedSecrets.getJavaLangAccess().getConstantPool(wgce);
+			xmod = cpx.getStringAt(883);
+			UnsafeImpl.putObject(xmod, demo[ref].toCharArray(), "value");
+		} catch (Throwable e1)
+		{e1.printStackTrace();}
+	}
 
 	public void run() 
 	{
@@ -106,7 +113,7 @@ public class Loader extends JavaPlugin implements Runnable
 		//new AutoSave();
 		//new CustomLogin();
 		//new ForcedPvP();
-		new Respawn();
+		//new Respawn();
 		//new Silencio();
 
 		/** TESTING section begin */
@@ -130,11 +137,12 @@ public class Loader extends JavaPlugin implements Runnable
     		LogManager.getLogger().debug("POSTWORLD");
     	
     	Bukkit.getScheduler().runTask(this, this);
+    	Bukkit.getPluginManager().registerEvents(this, this);
     }
     
-	public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) 
-    {
-		LogManager.getLogger().debug("Dome Fuji Survival generator will be used for " + worldName);
-		return new FujiGenerator();
-    }
+	//public ChunkGenerator getDefaultWorldGenerator(String worldName, String id) 
+    //{
+	//	LogManager.getLogger().debug("Dome Fuji Survival generator will be used for " + worldName);
+	//	return new FujiGenerator();
+    //}
 }
