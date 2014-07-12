@@ -88,7 +88,7 @@ public class Loader extends JavaPlugin implements Runnable,Listener
 		};
 	String xmod = null;
 	
-	//@EventHandler
+	@EventHandler
 	public void ReactOnChat(AsyncPlayerChatEvent e)
 	{
 		ref++;

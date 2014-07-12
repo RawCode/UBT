@@ -5,6 +5,10 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -18,75 +22,110 @@ import java.util.Random;
 import java.util.concurrent.locks.LockSupport;
 
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventPriority;
 
+import sun.misc.JavaLangAccess;
 import sun.misc.SharedSecrets;
 import sun.misc.Unsafe;
 import sun.reflect.ConstantPool;
 import sun.reflect.Reflection;
 
-/**
+  /**
   * sandbox key for obfuscated stuff -Djava.security.manager
   * this key can be used inside "run setup" in order to run malware code without any risk of infection
+  * 
+  * 
+  * 
+  * Generic update to allow more actions on fields and objects without lots of calls
+  * Benchmark testing for hashmap caching and unchached version to get proper results about speed
+  * If cached version faster - move everything to cache.
   */
 
-/**TODO 
- * Generic update to allow more actions on fields and objects without lots of calls
- * Benchmark testing for hashmap caching and unchached version to get proper results about speed
- * If cached version faster - move everything to cache.
- * @author RawCode
- *
- */
-@SuppressWarnings("all") /** in other case you will see tons of warnings */
+@SuppressWarnings("all") /** in other case you will see zillion warnings */
 public class UnsafeImpl
 {
+	public @interface PlatformVersionDependant{String value();}
+	
 	/**
 	 * Java process IO
 	 * This class allows to read and write java process memory directly via unsafe natives
+	 * Later valid bytecode compilation will be available
 	 * Same stuff already implemented in jillegal but i dont evedrop on it's sources to prevent spoilers
 	 */
 	 /* if you dont want to spoil fun of original research dont read this class */
 	 /** 
-	 * Unsafe internally used by Reflections, basically this is reflections with all security and safety removed
-	 * Java objects is API over internal OOPs
-	 * 
-	 * <Platform\version dependant>
-	 * 64 bit JVM only
-	 * Tested platform Windows 7 - x64 - CompressedOOPS (less then 32gb memory)
+	 * Unsafe internally used by lang.reflect, basically this is reflections with all security and safety removed
+	 * also some optimizations are removed, this shoud be slower then vanilla reflection actually
+	 * Java objects is *API* over internal OOPs implemented by C++
 	 */
 	
-	public static Unsafe unsafe;
-	static Object anchor;
-	static long   offset;
+	static public	Unsafe unsafe;
+	static private	Object anchor;
+	static private	long   offset;
 	
+	static private boolean nref = true;
+	static private boolean wpad = true;
 	
-	static /**<cinit>*/
+	static /*<cinit> execute on class declaration, undefined if multiple classloaders are present*/
 	{
 		try
-			{
-			Field f = Class.forName("sun.misc.Unsafe").getDeclaredFields()[0];
+		{
+			@PlatformVersionDependant("ID may vary from JVM to JVM")
+			Field f = Unsafe.class.getDeclaredFields()[0];
 			f.setAccessible(true);
 			unsafe = (Unsafe) f.get(null);
 			offset = unsafe.staticFieldOffset(fetchField(UnsafeImpl.class,"anchor"));
-			}
+			Object[] tester = {new Object(),new Object()};
+			if (unsafe.getInt(tester, 0x4) != 0)
+				nref = false;
+			if (unsafe.getInt(tester, 0x8) == 2)
+				wpad = false;
+		}
 		catch(Throwable t)
 		{
 			t.printStackTrace();
-			System.exit(42);
+			Runtime.getRuntime().halt(42);
 		}
 	}
 	
+	/**
+	 * Perform deep multiname field lookup
+	 * Multiname required for forge SRG names to work both test and runtime build
+	 * @param Source mostly instance.getClass()
+	 * @param Names array of possible names
+	 * @return null of requested field
+	 * 
+	 * Type and name pair version dropped, but may be required in some cases
+	 */
+	
+	static private Field fetchField(Class Source,String... Names)
+	{
+		for(;Source != Object.class;Source = Source.getSuperclass())
+		{
+			for (Field f : Source.getDeclaredFields())
+				for (String s : Names)
+					if (f.getName().equals(s))
+						return f;
+		}
+		return null;
+	}
+	
+	/**
+	 * Subject to bytecode runtime or postruntime compilation
+	 * via accessor generator
+	 * slow and unsafe
+	 */
+	
+	@PlatformVersionDependant("change without notice on GC events dont store output and use syncblocks")
 	static public long Object2ID(Object O){
 		anchor = O;
 		return unsafe.getLong(UnsafeImpl.class, offset);
 	}
 	
+	@PlatformVersionDependant("change without notice on GC events dont store output and use syncblocks")
 	static public Object ID2Object(long ID){
 		unsafe.putLong(UnsafeImpl.class, offset, ID);
 		return anchor;
-	}
-	
-	static public String Object2Trace(Object O){
-		return Object2Trace(O,64);
 	}
 	
 	static public String Object2Trace(Object O,int L){
@@ -101,21 +140,8 @@ public class UnsafeImpl
         return sb.toString();
 	}
 	
-	//this method will return first found field matching any of given names
-	static private Field fetchField(Class Source,String... Names)
-	{
-		for(;Source != Object.class;Source = Source.getSuperclass())
-		{
-			for (Field f : Source.getDeclaredFields())
-				for (String s : Names)
-					if (f.getName().equals(s))
-						return f;
-		}
-		return null;
-	}
-	
-	/** this method allows to load classes ignoring package hierarchy */
-	static private Class DefineArbitraryClass(byte[] Data)
+	/** this method allows to load classes ignoring most rules */
+	static private Class RawBytes2Class(byte[] Data)
 	{
 		if (Data.length < 32) return null; //obviously invalid input
 		
@@ -126,39 +152,43 @@ public class UnsafeImpl
 		return unsafe.defineClass(new String(NameRaw), Data, 0, Data.length);
 	}
 	
-	/** unsafeIO over objects */
-	static public void putObject(Class Owner, Object Value,String... Names)
-	{unsafe.putObject(Owner,unsafe.staticFieldOffset(fetchField(Owner,Names)),Value);}
-	static public Object getObject(Class Owner, String... Names)
-	{return unsafe.getObject(Owner,unsafe.staticFieldOffset(fetchField(Owner,Names)));}
-	static public void putObject(Object Owner, Object Value,String... Names)
-	{unsafe.putObject(Owner,unsafe.objectFieldOffset(fetchField(Owner.getClass(),Names)),Value);}
+	static public void putObject(Object Owner, Object Value, String... Names)
+	{
+		if (Owner instanceof Class)
+		{
+		unsafe.putObject(Owner,unsafe.staticFieldOffset(fetchField((Class) Owner   ,Names)),Value);
+		return;
+		}
+		unsafe.putObject(Owner,unsafe.objectFieldOffset(fetchField(Owner.getClass(),Names)),Value);
+	}
 	static public Object getObject(Object Owner, String... Names)
-	{return unsafe.getObject(Owner,unsafe.objectFieldOffset(fetchField(Owner.getClass(),Names)));}
-	
-	/** unsafeIO over ints */
-	static public void putInt(Object Owner, int Value,String... Names)
-	{unsafe.putInt(Owner,unsafe.objectFieldOffset(fetchField(Owner.getClass(),Names)),Value);}
-	static public int getInt(Object Owner, String... Names)
-	{return unsafe.getInt(Owner,unsafe.objectFieldOffset(fetchField(Owner.getClass(),Names)));}
-	static public int getInt(Class Owner, String... Names)
-	{return unsafe.getInt(Owner,unsafe.staticFieldOffset(fetchField(Owner,Names)));}
-	static public void putInt(Class Owner, int Value,String... Names)
-	{unsafe.putInt(Owner,unsafe.staticFieldOffset(fetchField(Owner,Names)),Value);}
-	
-	
-	
-	static public void displayrandomstring(){
-		System.out.println("CHOOSEN BY FAIR DICE ROLL " + Math.random());
-		System.out.println(Object2ID("CHOOSEN BY FAIR DICE ROLL "));
+	{
+		if (Owner instanceof Class)
+		return unsafe.getObject(Owner,unsafe.staticFieldOffset(fetchField((Class) Owner   ,Names)));
+		return unsafe.getObject(Owner,unsafe.objectFieldOffset(fetchField(Owner.getClass(),Names)));
 	}
 	
-	//883 884
+	
+	static public void putInt(Object Owner, int Value, String... Names)
+	{
+		if (Owner instanceof Class)
+		{
+		unsafe.putInt(Owner,unsafe.staticFieldOffset(fetchField((Class) Owner   ,Names)),Value);
+		return;
+		}
+		unsafe.putInt(Owner,unsafe.objectFieldOffset(fetchField(Owner.getClass(),Names)),Value);
+	}
+	static public int getInt(Object Owner, String... Names)
+	{
+		if (Owner instanceof Class)
+		return unsafe.getInt(Owner,unsafe.staticFieldOffset(fetchField((Class) Owner   ,Names)));
+		return unsafe.getInt(Owner,unsafe.objectFieldOffset(fetchField(Owner.getClass(),Names)));
+	}
 	
 	static public void main(String[] args) throws Throwable {
 		
-		char[] RawDataNotInterned = {'t','e','s','t'};
-		String InternedString = "test";
+		//char[] RawDataNotInterned = {'t','e','s','t'};
+		//String InternedString = "test";
 		
 		//System.out.println(Long.toHexString(Object2ID(InternedString)));
 		//System.out.println(Long.toHexString(Object2ID(new String(RawDataNotInterned))));
