@@ -2,6 +2,8 @@ package rc.ubt;
 
 import java.util.Map;
 
+import net.minecraft.server.v1_7_R3.MinecraftServer;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.bukkit.Bukkit;
@@ -15,6 +17,7 @@ import org.bukkit.plugin.PluginLoadOrder;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.craftbukkit.v1_7_R3.CraftServer;
 
+import rc.ubt.impl.DedicatedPlayerListImpl;
 import rc.ubt.impl.UnsafeImpl;
 import sun.misc.SharedSecrets;
 import sun.reflect.ConstantPool;
@@ -85,7 +88,7 @@ public class Loader extends JavaPlugin implements Runnable,Listener
 		};
 	String xmod = null;
 	
-	@EventHandler
+	//@EventHandler
 	public void ReactOnChat(AsyncPlayerChatEvent e)
 	{
 		ref++;
@@ -108,6 +111,20 @@ public class Loader extends JavaPlugin implements Runnable,Listener
 	public void run() 
 	{
 		LogManager.getLogger().debug("TICKZERO");
+		
+		//dont ever need magic for this
+		Object o = MinecraftServer.getServer().getPlayerList();
+		Object x = null;
+		try
+		{
+			x = UnsafeImpl.unsafe.allocateInstance(DedicatedPlayerListImpl.class);
+		} catch (InstantiationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		UnsafeImpl.unsafe.putInt(o, 8l, UnsafeImpl.unsafe.getInt(x, 8l));
 		
 		//new PsExImpl();
 		//new AutoSave();
