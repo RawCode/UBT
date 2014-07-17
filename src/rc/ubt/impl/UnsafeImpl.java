@@ -197,59 +197,41 @@ public /**static*/ class UnsafeImpl /**import class as static inside your classe
 	}
 	
 	
-	static public void setClass(Object Target, Class Type) throws InstantiationException
+	static public void forgeType(Object Target, Class Type)
 	{
 		unsafe.ensureClassInitialized(Type);
 		unsafe.putInt(Target,2*REF,unsafe.getInt(Type, 21*REF));
 	}
 	
+	@PlatformVersionDependant("Forged class must be carefully constructed to follow same OOPsIDs")
+	static public void forgeMethodTable(Class Target, Class Source)
+	{
+		unsafe.ensureClassInitialized(Source);
+		unsafe.ensureClassInitialized(Target);
+		unsafe.putInt(Target, 120L, unsafe.getInt(Source, 120L));
+	}
+	
 	static public void main(String[] args) throws Throwable {
 		
-		String s = new String("");
-		setClass(s,Integer.class);
-		System.out.println(s.getClass());
+		/*
+		while(z == 2)
+		{
+			ACTION.run();
+			if (TEST == 0)
+				break;
+			TEST = 0;
+			System.out.println(OFFSET);
+			unsafe.putInt(HAVE_ACTION.class, OFFSET, unsafe.getInt(NO_ACTION.class, OFFSET));
+			OFFSET = OFFSET + 4;
+			
+			if (TEST == 9999)
+				break;
+		}
 		
-		//System.out.println("TESTING");
-		//setClass(Thread.currentThread().getContextClassLoader(),ArcaneClassLoader.class);
-		
-		//Class.forName("BADDAD");
-		
-		//System.out.println(Object2Trace(unsafe.allocateInstance(ArcaneClassLoader.class),60));
-		
-		//Thread.currentThread().suspend();
-		
-		//0x7aaf21a90
-		//System.out.println(Long.toHexString(refx));
-		
-		
-		//System.out.println(Long.toHexString(unsafe.getInt(refx)));
-		
-		//reinterpret(test,String.class);
+		System.out.println(OFFSET);
 		
 		
 		
-		
-		
-		
-		
-		String s1 = Object2Trace(new Integer(66),16);
-		String s2 = Object2Trace(Integer.class,256);
-		
-		int l1 = unsafe.getInt(new Integer(66), 2*REF);
-		int l2 = unsafe.getInt(Integer.class, 21*REF);
-		//22*4
-		
-		Object oz = new String("TEST");
-		
-		String s3 = Object2Trace(oz,16);
-		//reinterpret(oz,new String("DATA"));
-		String s4 = Object2Trace(oz,16);
-		
-		System.out.println(oz);
-		
-		System.out.println(s3);
-		System.out.println("BREAK");
-		System.out.println(s4);
 		
 		//System.out.println(Integer.toHexString(l1));
 		//System.out.println(Integer.toHexString(l2));
