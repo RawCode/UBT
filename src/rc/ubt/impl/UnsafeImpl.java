@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
@@ -42,8 +43,10 @@ import sun.reflect.Reflection;
   */
 
 @SuppressWarnings("all") /** in other case you will see zillion warnings */
-public class UnsafeImpl
+public /**static*/ class UnsafeImpl /**import class as static inside your classes*/
 {
+	private UnsafeImpl(){/**unsafe.throwException(new Throwable("dont"));*/};
+	
 	public @interface PlatformVersionDependant{String value();}
 	
 	/**
@@ -63,10 +66,12 @@ public class UnsafeImpl
 	static private	Object anchor;
 	static private	long   offset;
 	
-	static private boolean nref = true;
-	static private boolean wpad = true;
+	@PlatformVersionDependant("64bit Compressed OOPs default")
+	static private long REF = 4L;
+	@PlatformVersionDependant("64bit Compressed OOPs default")
+	static private long PAD = 8L;
 	
-	static /*<cinit> execute on class declaration, undefined if multiple classloaders are present*/
+	static /*<cinit> executed on class declaration, undefined if multiple classloaders are present*/
 	{
 		try
 		{
@@ -75,11 +80,14 @@ public class UnsafeImpl
 			f.setAccessible(true);
 			unsafe = (Unsafe) f.get(null);
 			offset = unsafe.staticFieldOffset(fetchField(UnsafeImpl.class,"anchor"));
-			Object[] tester = {new Object(),new Object()};
-			if (unsafe.getInt(tester, 0x4) != 0)
-				nref = false;
-			if (unsafe.getInt(tester, 0x8) == 2)
-				wpad = false;
+			
+			Object[] sourcearray = {new Object(),new Object()};
+			
+			/** not implemented by underlying methods*/
+			if (unsafe.getInt(sourcearray, 0x4L) != 0)
+				REF = 8L;
+			if (unsafe.getInt(sourcearray, 0x8L) == 2)
+				PAD = 4L;
 		}
 		catch(Throwable t)
 		{
@@ -119,21 +127,24 @@ public class UnsafeImpl
 	@PlatformVersionDependant("change without notice on GC events dont store output and use syncblocks")
 	static public long Object2ID(Object O){
 		anchor = O;
-		return unsafe.getLong(UnsafeImpl.class, offset);
+		return (long)(unsafe.getInt(UnsafeImpl.class, offset)) & 0xfFfFfFfFl;
 	}
 	
 	@PlatformVersionDependant("change without notice on GC events dont store output and use syncblocks")
 	static public Object ID2Object(long ID){
-		unsafe.putLong(UnsafeImpl.class, offset, ID);
+		unsafe.putInt(UnsafeImpl.class, offset, (int) ID);
 		return anchor;
 	}
 	
 	static public String Object2Trace(Object O,int L){
 		StringBuilder sb = new StringBuilder();
-		sb.append("Trace of " + Long.toHexString(Object2ID(O)));
+		sb.append("Layout of @0x" + Long.toHexString(Object2ID(O)*8));
 		sb.append("\n");
+		String s;
         for (long i = 0; i < L; i++){
-        	sb.append(String.format("%02X ", unsafe.getByte(O,i)));
+        	s = (i % 4 == 3) ? "%2$02X": "%2$02X-";
+        	s = (i % 4 == 0) ? "%1$03d %2$02X-": s;
+        	sb.append(String.format(s, i,unsafe.getByte(O,i)));
             	if (i % 4 == 3 && i != L-1)
             		sb.append("\n");
         }
@@ -185,7 +196,63 @@ public class UnsafeImpl
 		return unsafe.getInt(Owner,unsafe.objectFieldOffset(fetchField(Owner.getClass(),Names)));
 	}
 	
+	
+	static public void setClass(Object Target, Class Type) throws InstantiationException
+	{
+		unsafe.ensureClassInitialized(Type);
+		unsafe.putInt(Target,2*REF,unsafe.getInt(Type, 21*REF));
+	}
+	
 	static public void main(String[] args) throws Throwable {
+		
+		String s = new String("");
+		setClass(s,Integer.class);
+		System.out.println(s.getClass());
+		
+		//System.out.println("TESTING");
+		//setClass(Thread.currentThread().getContextClassLoader(),ArcaneClassLoader.class);
+		
+		//Class.forName("BADDAD");
+		
+		//System.out.println(Object2Trace(unsafe.allocateInstance(ArcaneClassLoader.class),60));
+		
+		//Thread.currentThread().suspend();
+		
+		//0x7aaf21a90
+		//System.out.println(Long.toHexString(refx));
+		
+		
+		//System.out.println(Long.toHexString(unsafe.getInt(refx)));
+		
+		//reinterpret(test,String.class);
+		
+		
+		
+		
+		
+		
+		
+		String s1 = Object2Trace(new Integer(66),16);
+		String s2 = Object2Trace(Integer.class,256);
+		
+		int l1 = unsafe.getInt(new Integer(66), 2*REF);
+		int l2 = unsafe.getInt(Integer.class, 21*REF);
+		//22*4
+		
+		Object oz = new String("TEST");
+		
+		String s3 = Object2Trace(oz,16);
+		//reinterpret(oz,new String("DATA"));
+		String s4 = Object2Trace(oz,16);
+		
+		System.out.println(oz);
+		
+		System.out.println(s3);
+		System.out.println("BREAK");
+		System.out.println(s4);
+		
+		//System.out.println(Integer.toHexString(l1));
+		//System.out.println(Integer.toHexString(l2));
 		
 		//char[] RawDataNotInterned = {'t','e','s','t'};
 		//String InternedString = "test";
