@@ -25,6 +25,7 @@ import java.util.concurrent.locks.LockSupport;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventPriority;
 
+import rc.ubt.task.DIFFERENTPACKAGE;
 import sun.misc.JavaLangAccess;
 import sun.misc.SharedSecrets;
 import sun.misc.Unsafe;
@@ -206,12 +207,26 @@ public /**static*/ class UnsafeImpl /**import class as static inside your classe
 	@PlatformVersionDependant("Forged class must be carefully constructed to follow same OOPsIDs")
 	static public void forgeMethodTable(Class Target, Class Source)
 	{
+		//looks like this method actually (cast all objects from to)
 		unsafe.ensureClassInitialized(Source);
 		unsafe.ensureClassInitialized(Target);
 		unsafe.putInt(Target, 120L, unsafe.getInt(Source, 120L));
 	}
 	
 	static public void main(String[] args) throws Throwable {
+		
+		NO_ACTION f = new NO_ACTION();
+		HAVE_ACTION x = new HAVE_ACTION();
+		f.run();
+		x.run();
+		forgeMethodTable(NO_ACTION.class,HAVE_ACTION.class);
+		f.run();
+		x.run();
+		
+		System.out.println(f.getClass());
+		System.out.println(x.getClass());
+			
+			
 		
 		/*
 		while(z == 2)

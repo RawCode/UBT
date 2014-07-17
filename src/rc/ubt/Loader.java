@@ -1,7 +1,10 @@
 package rc.ubt;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
+import net.minecraft.server.v1_7_R3.FoodMetaData;
 import net.minecraft.server.v1_7_R3.MinecraftServer;
 
 import org.apache.logging.log4j.Level;
@@ -18,7 +21,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.craftbukkit.v1_7_R3.CraftServer;
 
 import rc.ubt.impl.DedicatedPlayerListImpl;
+import rc.ubt.impl.FoodMetaDataForged;
 import rc.ubt.impl.UnsafeImpl;
+import sun.misc.IOUtils;
 import sun.misc.SharedSecrets;
 import sun.reflect.ConstantPool;
 
@@ -88,7 +93,7 @@ public class Loader extends JavaPlugin implements Runnable,Listener
 		};
 	String xmod = null;
 	
-	@EventHandler
+	//@EventHandler
 	public void ReactOnChat(AsyncPlayerChatEvent e)
 	{
 		ref++;
@@ -112,6 +117,39 @@ public class Loader extends JavaPlugin implements Runnable,Listener
 	{
 		LogManager.getLogger().debug("TICKZERO");
 		
+		String className = FoodMetaDataForged.class.getName();
+		String classAsPath = className.replace('.', '/') + ".class";
+		InputStream stream = FoodMetaDataForged.class.getClassLoader().getResourceAsStream(classAsPath);
+		
+		byte[] data = null;
+		try
+		{
+			data = IOUtils.readFully(stream, -1, true);
+		} catch (IOException e1)
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		UnsafeImpl.unsafe.defineClass(className, data, 0, data.length, FoodMetaData.class.getClassLoader(), null);
+		
+		try
+		{
+			Class c = FoodMetaData.class.getClassLoader().loadClass("rc.ubt.impl.FoodMetaDataForged");
+			UnsafeImpl.forgeMethodTable(FoodMetaData.class,c);
+		} catch (ClassNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		//will crash jvm cos different classloader
+		//UnsafeImpl.forgeMethodTable(FoodMetaData.class,FoodMetaDataForged.class);
+		
+		
+		
+		
+		/**
 		//dont ever need magic for this
 		Object o = MinecraftServer.getServer().getPlayerList();
 		Object x = null;
